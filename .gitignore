@@ -1,18 +1,71 @@
-/node_modules
-/public/hot
-/public/storage
-/storage/*.key
-#/vendor
-.env
-.env.backup
-.phpunit.result.cache
-docker-compose.override.yml
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-.idea/
-/*.bak
-/*.zip
-/ACTUALIZACION_PRODUCCION
-/predial-main
+
+  # Laravel
+  /node_modules
+  /public/hot
+  /public/storage
+  /storage/*.key
+  .env
+  .env.backup
+  .env.production
+  .env.master
+  .phpunit.result.cache
+  Homestead.json
+  Homestead.yaml
+  npm-debug.log
+  yarn-error.log
+
+  # Bootstrap cache (regenerado por artisan)
+  /bootstrap/cache/*.php
+
+  # Storage runtime (regenerado por la app)
+  /storage/logs/*
+  !/storage/logs/.gitignore
+  /storage/framework/cache/data/*
+  !/storage/framework/cache/data/.gitignore
+  /storage/framework/sessions/*
+  !/storage/framework/sessions/.gitignore
+  /storage/framework/views/*
+  !/storage/framework/views/.gitignore
+  /storage/framework/testing/*
+  !/storage/framework/testing/.gitignore
+  /storage/app/public/*
+  !/storage/app/public/.gitignore
+
+  # Plesk / IIS específicos del servidor (NUNCA en repo)
+  /public/.user.ini
+  /index.html
+  /web.config
+
+  # Debug / utilitarios sueltos (NUNCA en repo)
+  /ejecutar_cambios.php
+  /explorar.php
+  /test_db.php
+  /reset_user.php
+  /cambio.sql
+  /restore_db.*
+  /respuestaplacepay.php
+
+  # IDE / OS
+  /.idea
+  /.vscode
+  /.vs
+  /.fleet
+  .DS_Store
+  Thumbs.db
+  Desktop.ini
+  *.swp
+  *.suo
+  *.ntvs*
+  *.njsproj
+  *.sln
+
+  # Docker (solo si no lo usas en prod)
+  /Dockerfile
+  /docker-compose.yml
+
+  # Backups y dumps
+  *.bak
+  *.zip
+  /base de datos antigua/
+  /ACTUALIZACION_PRODUCCION/
+  /predial-main/
