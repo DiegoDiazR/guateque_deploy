@@ -842,7 +842,9 @@ $(document).ready(function() {
                 closeOnCancel: true
             }, function(isConfirm) {
                 if (isConfirm) {
-                    downloadFacturaRowProcesar(btn);
+                    setTimeout(function() {
+                        downloadFacturaRowProcesar(btn);
+                    }, 300);
                 }
             });
         });
@@ -1337,9 +1339,8 @@ function downloadFacturaRowProcesar(btn) {
 
     swal({
         title: 'Fecha límite de pago',
-        text: 'Ingrese la fecha "Pague hasta" para el código de barras:',
+        text: 'Ingrese la fecha "Pague hasta" (formato: AAAA-MM-DD):',
         type: 'input',
-        inputType: 'date',
         inputValue: defaultDate,
         showCancelButton: true,
         confirmButtonText: 'Generar factura',
@@ -1349,14 +1350,30 @@ function downloadFacturaRowProcesar(btn) {
     }, function(inputValue) {
         if (inputValue === false) return;
         if (!inputValue || inputValue.length === 0) {
-            swal.showInputError('Debe ingresar una fecha válida.');
+            swal.showInputError('Debe ingresar una fecha.');
             return false;
         }
+
+        // Validar formato AAAA-MM-DD
+        var regEx = /^\d{4}-\d{2}-\d{2}$/;
+        if(!inputValue.match(regEx)) {
+            swal.showInputError('El formato debe ser AAAA-MM-DD (ejemplo: 2026-06-22).');
+            return false;
+        }
+
         // Convertir yyyy-mm-dd → yyyymmdd para la URL
         var fechaUrl = inputValue.replace(/-/g, '');
         swal.close();
         $(btn).attr('disabled', true);
-        startImpresion(global_url_print + '/' + id_acuerdo + '/' + tmp + '/' + selectedCuotasString + '/' + fechaUrl, 'Generación de factura cuota(s) acuerdo de pago. Espere un momento por favor.', 'success', '', getJsonAcuerdoAnios(global_acuerdo.id, global_acuerdo.anio_inicial_acuerdo, global_acuerdo.anio_final_acuerdo));
+        startImpresion(
+            global_url_print + '/' + id_acuerdo + '/' + tmp + '/' + selectedCuotasString + '/' + fechaUrl, 
+            'Generación de factura cuota(s) acuerdo de pago. Espere un momento por favor.', 
+            'success', 
+            '', 
+            function() {
+                getJsonAcuerdoAnios(global_acuerdo.id, global_acuerdo.anio_inicial_acuerdo, global_acuerdo.anio_final_acuerdo);
+            }
+        );
         $(btn).attr('disabled', false);
     });
 }
