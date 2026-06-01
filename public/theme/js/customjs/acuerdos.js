@@ -1327,10 +1327,40 @@ function downloadFacturaRowProcesar(btn) {
     var id_acuerdo = $(btn).attr('data-id');
     var tmp = 0;
     global_url_print = url_download;
-    $(btn).attr('disabled', true);
-    startImpresion(global_url_print + '/' + id_acuerdo + '/' + tmp + '/' + selectedCuotasString, 'Generación de factura cuota(s) acuerdo de pago. Espere un momento por favor.', 'success', '', getJsonAcuerdoAnios(global_acuerdo.id, global_acuerdo.anio_inicial_acuerdo, global_acuerdo.anio_final_acuerdo));
-    $(btn).attr('disabled', false);
+
+    // Fecha por defecto: hoy
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var dd = String(today.getDate()).padStart(2, '0');
+    var defaultDate = yyyy + '-' + mm + '-' + dd;
+
+    swal({
+        title: 'Fecha límite de pago',
+        text: 'Ingrese la fecha "Pague hasta" para el código de barras:',
+        type: 'input',
+        inputType: 'date',
+        inputValue: defaultDate,
+        showCancelButton: true,
+        confirmButtonText: 'Generar factura',
+        cancelButtonText: 'Cancelar',
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(inputValue) {
+        if (inputValue === false) return;
+        if (!inputValue || inputValue.length === 0) {
+            swal.showInputError('Debe ingresar una fecha válida.');
+            return false;
+        }
+        // Convertir yyyy-mm-dd → yyyymmdd para la URL
+        var fechaUrl = inputValue.replace(/-/g, '');
+        swal.close();
+        $(btn).attr('disabled', true);
+        startImpresion(global_url_print + '/' + id_acuerdo + '/' + tmp + '/' + selectedCuotasString + '/' + fechaUrl, 'Generación de factura cuota(s) acuerdo de pago. Espere un momento por favor.', 'success', '', getJsonAcuerdoAnios(global_acuerdo.id, global_acuerdo.anio_inicial_acuerdo, global_acuerdo.anio_final_acuerdo));
+        $(btn).attr('disabled', false);
+    });
 }
+
 
 function downloadFacturaRowReprocesar(btn) {
     var url_download = $(btn).attr('url');
