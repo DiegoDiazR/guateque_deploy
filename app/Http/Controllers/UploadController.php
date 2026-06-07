@@ -225,12 +225,11 @@ class UploadController extends Controller
 
                                                 if ($saved_pago) {
                                                     // Actualizar cuota(s) del acuerdo como pagada(s)
-                                                    $updated = DB::update('UPDATE predios_acuerdos_pago_detalle SET fecha_pago_cuota = ?, valor_pago = ?, id_banco = ?, pagado = -1, fecha_real_pago = ? WHERE id = ?', [
+                                                    $updated = DB::update('UPDATE predios_acuerdos_pago_detalle SET fecha_pago_cuota = ?, valor_pago = valor_cuota, id_banco = ?, pagado = -1, fecha_real_pago = ? WHERE factura_pago = ? AND estado = 1 AND pagado = 0', [
                                                         Carbon::createFromFormat("Ymd", $fecha_pago)->format('Y-m-d'),
-                                                        $valor_facturado,
                                                         $objBancoFactura->id,
                                                         Carbon::now(),
-                                                        $existe_acuerdo->id
+                                                        $str_numero
                                                     ]);
 
                                                     if ($updated) {

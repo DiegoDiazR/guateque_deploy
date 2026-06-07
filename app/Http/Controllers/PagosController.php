@@ -131,7 +131,8 @@ class PagosController extends Controller
                         ->where('estado', 1)
                         ->where('pagado', 0)
                         ->update([
-                            'fecha_pago' => $request->fecha_pago,
+                            'fecha_pago_cuota' => $request->fecha_pago,
+                            'valor_pago' => DB::raw('valor_cuota'),
                             'id_banco' => $request->id_banco_factura,
                             'pagado' => -1,
                             'fecha_real_pago' => Carbon::now()
@@ -403,10 +404,10 @@ class PagosController extends Controller
                 ->join('predios_acuerdos_pago', 'predios_acuerdos_pago.id', '=', 'predios_acuerdos_pago_detalle.id_acuerdo')
                 ->join('predios', 'predios.id', '=', 'predios_acuerdos_pago.id_predio')
                 ->leftJoin('pagos', 'pagos.numero_recibo', '=', 'predios_acuerdos_pago_detalle.factura_pago')
-                ->select(DB::raw("predios_acuerdos_pago.id_predio, predios_acuerdos_pago_detalle.cuota_numero as ultimo_anio, SUM(predios_acuerdos_pago_detalle.valor_cuota) as valor_pago, MAX(predios_acuerdos_pago_detalle.fecha_emision) as fecha_pago, predios_acuerdos_pago_detalle.pagado, predios.codigo_predio, pagos.id_banco_archivo, pagos.paquete_archivo, pagos.codigo_barras, predios_acuerdos_pago.numero_acuerdo"))
+                ->select(DB::raw("predios_acuerdos_pago.id_predio, MAX(predios_acuerdos_pago_detalle.cuota_numero) as ultimo_anio, SUM(predios_acuerdos_pago_detalle.valor_cuota) as valor_pago, MAX(predios_acuerdos_pago_detalle.fecha_emision) as fecha_pago, predios_acuerdos_pago_detalle.pagado, predios.codigo_predio, pagos.id_banco_archivo, pagos.paquete_archivo, pagos.codigo_barras, predios_acuerdos_pago.numero_acuerdo"))
                 ->where('predios_acuerdos_pago_detalle.factura_pago', $str_factura)
                 ->where('predios_acuerdos_pago_detalle.estado', 1)
-                ->groupBy('predios_acuerdos_pago.id_predio', 'predios_acuerdos_pago_detalle.cuota_numero', 'predios_acuerdos_pago_detalle.pagado', 'predios.codigo_predio', 'pagos.id_banco_archivo', 'pagos.paquete_archivo', 'pagos.codigo_barras', 'predios_acuerdos_pago.numero_acuerdo')
+                ->groupBy('predios_acuerdos_pago.id_predio', 'predios_acuerdos_pago_detalle.pagado', 'predios.codigo_predio', 'pagos.id_banco_archivo', 'pagos.paquete_archivo', 'pagos.codigo_barras', 'predios_acuerdos_pago.numero_acuerdo')
                 ->first();
 
             if ($acuerdo_info != null) {
