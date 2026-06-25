@@ -313,9 +313,9 @@ class UploadController extends Controller
                             $complemento = $complemento . '<br />Lista de facturas no registradas: ' . implode(', ', $pagos_no_realizados);
                         }
                         if(count($facturas_inexistentes) > 0) {
-                            $descripcion = $descripcion . '<br />Facturas inexistentes: <b>' .
+                            $descripcion = $descripcion . '<br />Facturas no encontradas: <b>' .
                                             count($facturas_inexistentes) . '</b>';
-                            $complemento = $complemento . '<br />Lista de facturas inexistentes: ' . implode(', ', $facturas_inexistentes);
+                            $complemento = $complemento . '<br />Lista de facturas no encontradas: ' . implode(', ', $facturas_inexistentes);
                         }
                     }
                     else {
