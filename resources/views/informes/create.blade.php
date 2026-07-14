@@ -30,6 +30,26 @@
                 var url = '/export-excel-recaudo-car/' + fechaInicial + '/' + fechaFinal + '/' + bancoInicial + '/' + bancoFinal;
                 window.open(url, '_blank');
             });
+
+            $('#generar_informe_recaudo_pdf').click(function() {
+                var fechaInicial = $('#fecha_inicial').val();
+                var fechaFinal = $('#fecha_final').val();
+                var bancoInicial = $('#banco_inicial').val();
+                var bancoFinal = $('#banco_final').val();
+
+                if(fechaInicial === '' || fechaFinal === '') {
+                    swal("Error", "Debe seleccionar un rango de fechas", "error");
+                    return;
+                }
+
+                if(bancoInicial === '' || bancoFinal === '') {
+                    swal("Error", "Debe seleccionar los bancos", "error");
+                    return;
+                }
+
+                var url = '/export-pdf-recaudo-car/' + fechaInicial + '/' + fechaFinal + '/' + bancoInicial + '/' + bancoFinal;
+                window.open(url, '_blank');
+            });
         });
     </script>
 @endpush
@@ -102,6 +122,7 @@
                                             </div>
                                             <div class="form-actions text-right" style="margin-top: 20px;">
                                                 <button id="generar_informe_recaudo" type="button" class="btn btn-success"><i class="fa fa-file-excel-o"></i> Generar Excel</button>
+                                                <button id="generar_informe_recaudo_pdf" type="button" class="btn btn-danger"><i class="fa fa-file-pdf-o"></i> Generar PDF</button>
                                             </div>
                                         </div>
                                     </div>

@@ -199,6 +199,7 @@ Route::get('/export-excel-avaluos/{idpredio}',[PrediosController::class, 'export
 Route::get('/export-excel-estado-cuenta/{idpredio}',[PrediosController::class, 'exportExcelEstadoCuenta']);
 Route::get('/informes', [PrediosController::class, 'informesIndex']);
 Route::get('/export-excel-recaudo-car/{fechainicial}/{fechafinal}/{bancoinicial}/{bancofinal}', [PrediosController::class, 'exportExcelRecaudoCAR']);
+Route::get('/export-pdf-recaudo-car/{fechainicial}/{fechafinal}/{bancoinicial}/{bancofinal}', [PrediosController::class, 'exportPdfRecaudoCAR']);
 
 //datos_basicos
 Route::post('/store/predios_datos_basicos', [PrediosController::class, 'store_predios_datos_basicos']);
