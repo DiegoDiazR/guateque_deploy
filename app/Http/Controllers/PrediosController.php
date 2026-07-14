@@ -3658,7 +3658,7 @@ class PrediosController extends Controller
             'fecha_final' => $fechafinal,
         ];
 
-        $pdf = PDF::loadView('exports.reporteRecaudoCAREXCEL', $data);
+        $pdf = PDF::loadView('exports.reporteRecaudoCARPDF', $data);
         $pdf->setPaper('A3', 'landscape');
         
         return $pdf->download('Reporte_Recaudo_Predial_CAR_' . $fechainicial . '_' . $fechafinal . '.pdf');
