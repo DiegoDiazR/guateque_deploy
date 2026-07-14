@@ -1487,16 +1487,29 @@ function downloadFacturaRowProcesar(btn) {
                         var lista = $('#ultimo_anio_facturar').find('option[value="'+ anio +'"]').attr('lista').split(',');
                         if (lista.length > 0 && lista[0] !== '') {
                             $('#div_anios_factura').fadeIn();
+                            var hasMorosos = false;
                             $.each($('#ultimo_anio_facturar').find('option[value="'+ anio +'"]').attr('lista').split(','), function(i, el) {
+                                var yearData = global_anios.find(y => parseInt(y.ultimo_anio) === parseInt(el));
+                                var isMoroso = yearData && yearData.estado_moroso > 0;
+                                if (isMoroso) hasMorosos = true;
+
+                                var checkboxHtml = isMoroso
+                                    ? '<input class="anio_factura anio_moroso" type="checkbox" id="anio_factura_'+ el +'" name="anio_factura_'+ el +'" value="' + el + '" checked="checked" disabled>&nbsp;<span style="color: #e74c3c;"><i class="fa fa-warning"></i> ' + el + ' (Fiscalización)</span>'
+                                    : '<input class="anio_factura" type="checkbox" id="anio_factura_'+ el +'" name="anio_factura_'+ el +'" value="' + el + '" checked="checked">&nbsp;' + el;
+
                                 var html_anio = $('<div id="div_anio_factura_' + el + '" class="col-lg-4 col-md-4 col-sm-6 col-xs-12">' +
                                     '<div class="form-group" style="margin: 0px;">' +
                                     ' <label for="anio_factura" class="control-label" style="display: block; margin: 0px;">' +
-                                    '  <input class="anio_factura" type="checkbox" id="anio_factura_'+ el +'" name="anio_factura_'+ el +'" value="' + el + '" checked="checked">&nbsp;' + el +
+                                    '  ' + checkboxHtml +
                                     ' </label>' +
                                     '</div>' +
                                 '</div>');
                                 $('#lista_anios_factura').append(html_anio);
                             });
+
+                            if (hasMorosos) {
+                                swal("Atención", "Este predio tiene años en proceso de fiscalización. Las facturas de esos años no pueden ser modificadas.", "warning");
+                            }
 
                             var html_anio = $('<div id="div_anio_factura_todos" class="col-lg-8 col-md-8 col-sm-12 col-xs-12">' +
                                 '<div class="form-group" style="margin: 0px;">' +
@@ -1586,7 +1599,7 @@ function checkUncheckAnios(e, global_anio) {
     var control = $(e.target);
     var checked = $(control).is(':checked');
     $('.anio_factura').off();
-    $('.anio_factura').prop('checked', checked);
+    $('.anio_factura:not(:disabled)').prop('checked', checked);
     if (checked) {
         $('#span_marcar_desmarcar').html('Deseleccionar');
         if (global_anio && global_anio.factura_pago !== null) {

@@ -197,6 +197,8 @@ Route::get('/export-excel-exenciones/{fechainicial}/{fechafinal}',[PrediosContro
 Route::get('/export-excel-prescripciones/{fechainicial}/{fechafinal}',[PrediosController::class, 'exportExcelPrescripciones']);
 Route::get('/export-excel-avaluos/{idpredio}',[PrediosController::class, 'exportExcelAvaluos']);
 Route::get('/export-excel-estado-cuenta/{idpredio}',[PrediosController::class, 'exportExcelEstadoCuenta']);
+Route::get('/informes', [PrediosController::class, 'informesIndex']);
+Route::get('/export-excel-recaudo-car/{fechainicial}/{fechafinal}/{bancoinicial}/{bancofinal}', [PrediosController::class, 'exportExcelRecaudoCAR']);
 
 //datos_basicos
 Route::post('/store/predios_datos_basicos', [PrediosController::class, 'store_predios_datos_basicos']);

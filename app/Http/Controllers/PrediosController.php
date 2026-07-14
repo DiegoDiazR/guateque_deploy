@@ -8,6 +8,7 @@ use App\Exports\ExportCartera;
 use App\Exports\ExportEstadoCuenta;
 use App\Exports\ExportExenciones;
 use App\Exports\ExportPrescripciones;
+use App\Exports\ExportRecaudoCAR;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -2798,7 +2799,7 @@ class PrediosController extends Controller
                     // ->where('prescrito', 0)
                     // ->where('exencion', 0)
                     ->whereNotNull('factura_pago')
-                    ->select(DB::raw('MAX(predios_pagos.ultimo_anio) AS ultimo_anio, predios_pagos.factura_pago, predios_pagos.fecha_emision'))
+                    ->select(DB::raw('MAX(predios_pagos.ultimo_anio) AS ultimo_anio, predios_pagos.factura_pago, predios_pagos.fecha_emision, MAX(ISNULL(predios_pagos.estado_moroso, 0)) AS estado_moroso'))
                     ->groupBy('predios_pagos.factura_pago', 'predios_pagos.fecha_emision')
                     ->orderBy('ultimo_anio', 'desc')
                     ->get();
@@ -2812,7 +2813,7 @@ class PrediosController extends Controller
                 // ->where('prescrito', 0)
                 // ->where('exencion', 0)
                 ->whereNull('factura_pago')
-                ->select(DB::raw('predios_pagos.ultimo_anio, predios_pagos.factura_pago, ISNULL(predios_pagos.total_calculo, 0) AS total_calculo, \'-\' AS fecha_emision'))
+                ->select(DB::raw('predios_pagos.ultimo_anio, predios_pagos.factura_pago, ISNULL(predios_pagos.total_calculo, 0) AS total_calculo, \'-\' AS fecha_emision, ISNULL(predios_pagos.estado_moroso, 0) AS estado_moroso'))
                 ->orderBy('ultimo_anio', 'desc')
                 ->get();
             // }
@@ -2879,7 +2880,7 @@ class PrediosController extends Controller
             // Si no existe un calculo para el año actual o si el calculo existe pero aun no tiene un numero
             // de factura asignado, entonces, se agrega el año a la lista
             if($ultimo_anio_pagar->ultimo_anio != $currentYear && !$exists_current_anio && count($array_anios) > 0) {
-                array_unshift($array_anios, ['ultimo_anio' => strval($currentYear), 'factura_pago' => null, 'total_calculo' => 0]);
+                array_unshift($array_anios, ['ultimo_anio' => strval($currentYear), 'factura_pago' => null, 'total_calculo' => 0, 'estado_moroso' => 0]);
             }
 
             // Verificar prescripcion
@@ -3519,6 +3520,23 @@ class PrediosController extends Controller
         $data = json_decode($request->form);
         DB::beginTransaction();
         try {
+            $morosos = PredioPago::where('id_predio', $data->{'id_predio'})
+                        ->where('factura_pago', $data->{'factura'})
+                        ->whereIn('ultimo_anio', explode(',', $data->{'lista_anios'}))
+                        ->where('pagado', 0)
+                        ->where('anulada', 0)
+                        ->where('estado_moroso', '>', 0)
+                        ->count();
+
+            if ($morosos > 0) {
+                return response()->json([
+                    'data' => [
+                        'success' => false,
+                        'message' => 'No se pueden modificar años que se encuentran en proceso de fiscalización.'
+                    ],
+                ]);
+            }
+
             $updated = PredioPago::where('id_predio', $data->{'id_predio'})
                         ->where('factura_pago', $data->{'factura'})
                         ->whereIn('ultimo_anio', explode(',', $data->{'lista_anios'}))
@@ -3554,5 +3572,17 @@ class PrediosController extends Controller
 
     public function exportExcelEstadoCuenta(Request $request, $idpredio) {
         return Excel::download(new ExportEstadoCuenta($idpredio, $request->session()->get('useremail')), 'estado_cuenta.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+    }
+
+    public function informesIndex(Request $request) {
+        if (!$request->session()->exists('userid')) {
+            return redirect('/');
+        }
+        $bancos = DB::table('bancos')->select('id', 'nombre')->get();
+        return view('informes.create', ['bancos' => $bancos]);
+    }
+
+    public function exportExcelRecaudoCAR(Request $request, $fechainicial, $fechafinal, $bancoinicial, $bancofinal) {
+        return Excel::download(new ExportRecaudoCAR($fechainicial, $fechafinal, $bancoinicial, $bancofinal), 'recaudo_car.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 }

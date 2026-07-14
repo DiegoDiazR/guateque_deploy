@@ -18,6 +18,19 @@
         </li>
         @endforeach
 
+        <li class="padre">
+            <a href="javascript:void(0)" class="waves-effect">
+                <i class="ti-pie-chart"></i> <span class="hide-menu">Informes<span class="fa arrow"></span></span>
+            </a>
+            <ul class="nav nav-second-level">
+                <li class="opcion">
+                    <a href="/informes" class="waves-effect">
+                        <i class="fa fa-file-excel-o"></i> <span class="hide-menu">Recaudo Predial y CAR</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         <!-- <li class="user-pro">
             <a href="#" class="waves-effect"><img src="{!! asset('theme/plugins/images/users/agent2.jpg') !!}" alt="user-img" class="img-circle"> <span class="hide-menu"> Steve Gection<span class="fa arrow"></span></span>
             </a>
