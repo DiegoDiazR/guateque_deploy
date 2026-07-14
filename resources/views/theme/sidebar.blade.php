@@ -18,17 +18,15 @@
         </li>
         @endforeach
 
-        <li class="padre">
+        <li class="padre" id="li_parent_informes" parent="informes">
             <a href="javascript:void(0)" class="waves-effect">
                 <i class="ti-pie-chart"></i> <span class="hide-menu">Informes<span class="fa arrow"></span></span>
             </a>
-            <ul class="nav nav-second-level">
-                <li class="opcion">
-                    <a href="/informes" class="waves-effect">
-                        <i class="fa fa-file-excel-o"></i> <span class="hide-menu">Recaudo Predial y CAR</span>
-                    </a>
-                </li>
-            </ul>
+        </li>
+        <li class="opcion" parent="informes">
+            <a href="/informes" class="waves-effect">
+                <i class="fa fa-file-excel-o"></i> <span class="hide-menu">Recaudo Predial y CAR</span>
+            </a>
         </li>
 
         <!-- <li class="user-pro">
