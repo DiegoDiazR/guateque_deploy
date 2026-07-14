@@ -33,42 +33,56 @@ class ExportRecaudoCAR implements FromView, WithTitle
         $parametro_ubicacion = DB::table('parametros')->select('valor')->where('nombre', 'ubicacion')->first();
 
         // Join to get identificacion
-        $registros = DB::table('View_predial_facturado')
-            ->leftJoin('predios', 'View_predial_facturado.id_predio', '=', 'predios.id')
+        $ano = substr($this->fechaInicial, 0, 4);
+
+        $registros = DB::table('predios_pagos')
+            ->join('predios', 'predios_pagos.id_predio', '=', 'predios.id')
+            ->join('bancos', 'predios_pagos.id_banco', '=', 'bancos.id')
             ->leftJoin('predios_propietarios', function($join) {
                 $join->on('predios.id', '=', 'predios_propietarios.id_predio')
                      ->where('predios_propietarios.jerarquia', '=', '001');
             })
             ->leftJoin('propietarios', 'predios_propietarios.id_propietario', '=', 'propietarios.id')
-            ->leftJoin('bancos', 'View_predial_facturado.id_banco', '=', 'bancos.id')
-            ->select(
-                'View_predial_facturado.ultimo_anio',
-                'View_predial_facturado.factura_pago',
-                'View_predial_facturado.codigo_predio',
-                'View_predial_facturado.nombre_propietario',
-                'propietarios.identificacion as identificacion_propietario',
-                'bancos.nombre_banco as nombre_banco',
-                'View_predial_facturado.fechapago',
-                'View_predial_facturado.predialanoactual',
-                'View_predial_facturado.descuentopredial',
-                'View_predial_facturado.predialanosanteriores',
-                'View_predial_facturado.interesespredial',
-                'View_predial_facturado.interesespredialanosanteriores',
-                'View_predial_facturado.total_predial',
-                'View_predial_facturado.caranoactual',
-                'View_predial_facturado.descuentocar',
-                'View_predial_facturado.caranoanteriores',
-                'View_predial_facturado.interesescaractual',
-                'View_predial_facturado.interesescaranteriores',
-                'View_predial_facturado.totalcar',
-                'View_predial_facturado.valor_facturado'
-            )
-            ->whereBetween('View_predial_facturado.fechapago', [$this->fechaInicial, $this->fechaFinal])
-            ->whereBetween('View_predial_facturado.id_banco', [$this->bancoInicial, $this->bancoFinal])
+            ->where('predios_pagos.pagado', '!=', 0)
+            ->where('predios_pagos.anulada', 0)
+            ->where('predios_pagos.acuerdo', 0)
+            ->whereBetween('predios_pagos.fecha_pago', [$this->fechaInicial, $this->fechaFinal])
+            ->whereBetween('predios_pagos.id_banco', [$this->bancoInicial, $this->bancoFinal])
+            ->selectRaw("
+                predios_pagos.ultimo_anio,
+                predios_pagos.factura_pago,
+                predios.codigo_predio,
+                propietarios.nombre as nombre_propietario,
+                propietarios.identificacion as identificacion_propietario,
+                bancos.nombre_banco as nombre_banco,
+                predios_pagos.fecha_pago as fechapago,
+                
+                CASE WHEN predios_pagos.ultimo_anio = {$ano} THEN predios_pagos.valor_concepto1 ELSE 0 END as predialanoactual,
+                CASE WHEN predios_pagos.ultimo_anio < {$ano} THEN predios_pagos.valor_concepto1 ELSE 0 END as predialanosanteriores,
+                
+                predios_pagos.valor_concepto13 as descuentopredial,
+                
+                CASE WHEN predios_pagos.ultimo_anio = {$ano} THEN predios_pagos.valor_concepto2 ELSE 0 END as interesespredial,
+                CASE WHEN predios_pagos.ultimo_anio < {$ano} THEN predios_pagos.valor_concepto2 ELSE 0 END as interesespredialanosanteriores,
+                
+                (predios_pagos.valor_concepto1 + predios_pagos.valor_concepto2 + predios_pagos.valor_concepto13) as total_predial,
+                
+                CASE WHEN predios_pagos.ultimo_anio = {$ano} THEN (predios_pagos.valor_concepto3 + predios_pagos.valor_concepto21) ELSE 0 END as caranoactual,
+                CASE WHEN predios_pagos.ultimo_anio < {$ano} THEN (predios_pagos.valor_concepto3 + predios_pagos.valor_concepto21) ELSE 0 END as caranoanteriores,
+                
+                CASE WHEN predios_pagos.ultimo_anio = {$ano} THEN predios_pagos.valor_concepto4 ELSE 0 END as interesescaractual,
+                CASE WHEN predios_pagos.ultimo_anio < {$ano} THEN predios_pagos.valor_concepto4 ELSE 0 END as interesescaranteriores,
+                
+                predios_pagos.valor_concepto15 as porcentaje_car,
+                
+                (predios_pagos.valor_concepto3 + predios_pagos.valor_concepto21 + predios_pagos.valor_concepto4 + predios_pagos.valor_concepto15) as totalcar,
+                
+                predios_pagos.valor_pago as valor_facturado
+            ")
             ->orderBy('bancos.nombre_banco', 'asc')
-            ->orderBy('View_predial_facturado.fechapago', 'asc')
-            ->orderBy('View_predial_facturado.codigo_predio', 'asc')
-            ->orderBy('View_predial_facturado.ultimo_anio', 'asc')
+            ->orderBy('predios_pagos.fecha_pago', 'asc')
+            ->orderBy('predios.codigo_predio', 'asc')
+            ->orderBy('predios_pagos.ultimo_anio', 'asc')
             ->get();
 
         return view('exports.reporteRecaudoCAREXCEL', [
