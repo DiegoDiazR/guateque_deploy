@@ -3587,6 +3587,8 @@ class PrediosController extends Controller
     }
 
     public function exportPdfRecaudoCAR($fechainicial, $fechafinal, $bancoinicial, $bancofinal) {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
         $parametro_logo = DB::table('parametros')->select('valor')->where('nombre', 'logo')->first();
         $parametro_nit = DB::table('parametros')->select('valor')->where('nombre', 'nit')->first();
         $parametro_alcaldia = DB::table('parametros')->select('valor')->where('nombre', 'alcaldia')->first();
