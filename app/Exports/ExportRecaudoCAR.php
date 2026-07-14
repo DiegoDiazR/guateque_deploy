@@ -54,7 +54,7 @@ class ExportRecaudoCAR implements FromView, WithTitle
                 predios.codigo_predio,
                 propietarios.nombre as nombre_propietario,
                 propietarios.identificacion as identificacion_propietario,
-                bancos.nombre_banco as nombre_banco,
+                bancos.nombre as nombre_banco,
                 predios_pagos.fecha_pago as fechapago,
                 
                 CASE WHEN predios_pagos.ultimo_anio = {$ano} THEN predios_pagos.valor_concepto1 ELSE 0 END as predialanoactual,
@@ -73,13 +73,13 @@ class ExportRecaudoCAR implements FromView, WithTitle
                 CASE WHEN predios_pagos.ultimo_anio = {$ano} THEN predios_pagos.valor_concepto4 ELSE 0 END as interesescaractual,
                 CASE WHEN predios_pagos.ultimo_anio < {$ano} THEN predios_pagos.valor_concepto4 ELSE 0 END as interesescaranteriores,
                 
-                predios_pagos.valor_concepto15 as porcentaje_car,
+                predios_pagos.valor_concepto15 as descuentocar,
                 
                 (predios_pagos.valor_concepto3 + predios_pagos.valor_concepto21 + predios_pagos.valor_concepto4 + predios_pagos.valor_concepto15) as totalcar,
                 
                 predios_pagos.valor_pago as valor_facturado
             ")
-            ->orderBy('bancos.nombre_banco', 'asc')
+            ->orderBy('bancos.nombre', 'asc')
             ->orderBy('predios_pagos.fecha_pago', 'asc')
             ->orderBy('predios.codigo_predio', 'asc')
             ->orderBy('predios_pagos.ultimo_anio', 'asc')
