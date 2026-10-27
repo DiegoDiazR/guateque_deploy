@@ -19,21 +19,7 @@ $(document).ready(function() {
         });
     }
 
-    $.each($('.padre'), function(i, el) {
-        if ($('.opcion[parent="' + $(el).attr('parent') + '"]').length > 0) {
-            var ul = $('<ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;"></ul>');
-            ul.append($('.opcion[parent="' + $(el).attr('parent') + '"]'));
-            $(el).append(ul);
-        } else {
-            $(el).find('span.arrow').remove();
-        }
-    });
-
-    setTimeout(function() {
-        $('.padre.active').children('a').addClass('active');
-        $('ul.nav.collapse.in').attr('style', '');
-        $('ul.nav.collapse.in').attr('aria-expanded', 'true');
-    }, 100);
+    // (El menú ahora es horizontal y lo maneja paipa.js: se retiró el armado del menú lateral que usaba .padre/.opcion.)
 
     if ($('#search_control').length > 0) {
         $('#search_control').off('keyup').on('keyup', function() {
