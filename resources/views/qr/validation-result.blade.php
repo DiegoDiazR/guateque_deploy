@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Validación de certificado PAZ Y SALVO">
     <meta name="author" content="ERPSoft Predial">
-    <link rel="icon" type="image/png" sizes="16x16" href="{!! asset('theme/plugins/images/favicon.png') !!}">
+    <link rel="icon" type="image/png" href="{{ asset(config('municipio.escudo')) }}">
     <title>{{ $title }} - Validación PAZ Y SALVO</title>
 
     <!-- Bootstrap Core CSS -->
@@ -19,111 +19,53 @@
     <link href="{!! asset('theme/css/colors/green.css') !!}" id="theme" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="{!! asset('theme/css/customcss/style.css') !!}" rel="stylesheet">
+    <!-- Estilos del sistema y colores del municipio (config/municipio.php) -->
+    <link href="{!! asset('theme/css/paipa.css') !!}?v={{ @filemtime(public_path('theme/css/paipa.css')) ?: 1 }}" rel="stylesheet">
+    @include('theme.identidad')
 
     <style>
-        body {
-            background: url('{!! asset('theme/plugins/images/predial-login.jpg') !!}') no-repeat center center / cover;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            position: relative;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.5);
-            z-index: -1;
-        }
-        .validation-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .validation-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .status-header {
-            padding: 2rem;
-            text-align: center;
-            color: white;
-        }
-        .status-valid {
-            background: linear-gradient(135deg, #28a745, #20c997);
-        }
-        .status-invalid {
-            background: linear-gradient(135deg, #dc3545, #fd7e14);
-        }
-        .status-already_used {
-            background: linear-gradient(135deg, #ffc107, #fd7e14);
-            color: #212529 !important;
-        }
-        .status-expired {
-            background: linear-gradient(135deg, #6c757d, #495057);
-        }
-        .status-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-        .certificate-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-        }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #495057;
-            flex: 1;
-        }
-        .info-value {
-            color: #212529;
-            text-align: right;
-            flex: 1;
-        }
-        .municipality-footer {
-            background: #495057;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-        }
+        .validation-container { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; padding: clamp(16px, 3vw, 40px) 16px; }
+        .validation-card { background: #fff; border: 1px solid var(--linea); border-radius: 22px; box-shadow: 0 30px 60px -34px rgba(16, 32, 28, .55); overflow: hidden; max-width: 800px; width: 100%; margin: 0 auto; }
+        .status-header { padding: 2rem; text-align: center; color: #fff; }
+        .status-header h2 { color: #fff !important; font-family: var(--serif); margin: 0 0 .5rem; }
+        .status-valid { background: linear-gradient(135deg, var(--primario), var(--primario-oscuro)); }
+        .status-invalid { background: linear-gradient(135deg, #b4232a, #8f1c22); }
+        .status-already_used { background: linear-gradient(135deg, var(--oro-claro), var(--oro)); color: #10201c !important; }
+        .status-already_used h2 { color: #10201c !important; }
+        .status-expired { background: linear-gradient(135deg, #6b7a76, #4b5f5a); }
+        .status-icon { font-size: 4rem; line-height: 1; margin-bottom: 1rem; display: block; }
+        .certificate-info { background: #f6faf9; border: 1px solid var(--linea); border-radius: 14px; padding: 1.5rem; margin: 1rem 0; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid var(--linea); }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { font-weight: 600; color: var(--tenue); flex: 1; }
+        .info-value { color: var(--tinta); text-align: right; flex: 1; }
+        .validation-card .p-4 { padding: 1.5rem; }
+        .validation-card .mt-2 { margin-top: .5rem; } .validation-card .mt-3 { margin-top: 1rem; } .validation-card .mt-4 { margin-top: 1.5rem; }
+        .validation-card .mb-0 { margin-bottom: 0; } .validation-card .mb-3 { margin-bottom: 1rem; }
+        .municipality-footer { background: var(--profundo); color: #fff; text-align: center; padding: 1rem; }
         @media (max-width: 768px) {
-            .info-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .info-value {
-                text-align: left;
-                margin-top: 0.25rem;
-            }
+            .info-row { flex-direction: column; align-items: flex-start; }
+            .info-value { text-align: left; margin-top: .25rem; }
         }
     </style>
 </head>
-<body>
+<body class="paipa">
     <!-- Preloader -->
     <div class="preloader">
         <div class="cssload-speeding-wheel"></div>
     </div>
+
+    <header class="cabecera">
+        <div class="contenedor cabecera-fila">
+            <span class="marca">
+                <img class="marca-logo" src="{{ asset(config('municipio.logo')) }}" alt="{{ config('municipio.alcaldia') }}">
+                <span class="marca-texto">
+                    <strong>{{ config('municipio.secretaria') }}</strong>
+                    <span>Validación de PAZ Y SALVO</span>
+                </span>
+            </span>
+        </div>
+    </header>
 
     <div class="validation-container">
         <div class="validation-card">

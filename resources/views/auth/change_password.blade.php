@@ -66,7 +66,7 @@
                                 <span class="text-danger">@error('password_confirmation') {{ $message }} @enderror</span>
                             </div>
                             <div class="text-right">
-                                <button type="submit" class="btn btn-success waves-effect waves-light m-r-10">Guardar</button>
+                                <button type="submit" class="btn btn-info waves-effect waves-light m-r-10"><i class="fa fa-save"></i> Guardar</button>
                                 <!--<button type="submit" class="btn btn-inverse waves-effect waves-light">Cancelar</button>-->
                             </div>
                         </form>
