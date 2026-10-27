@@ -2,7 +2,12 @@
 
 @section('content')
 
+{{-- Switchery (interruptor de busqueda por factura): solo esta pantalla lo usa, ya no se carga en las demas --}}
+@push('styles')
+    <link href="{!! asset('theme/plugins/bower_components/switchery/dist/switchery.min.css') !!}" rel="stylesheet">
+@endpush
 @push('scripts')
+    <script src="{!! asset('theme/plugins/bower_components/switchery/dist/switchery.min.js') !!}"></script>
     <!-- Laravel Javascript Validation -->
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\PagosCreateFormRequest', '#create-form'); !!}
@@ -15,9 +20,9 @@
     <script src="{!! asset('theme/plugins/bower_components/blockUI/jquery.blockUI.js') !!}"></script>
     <script src="{!! asset('theme/plugins/bower_components/bootstrap-filestyle/bootstrap-filestyle.min.js') !!}"></script>
     {{-- <div class="modal-header"> --}}
-    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}?{{ $current_time }}"></script>
-   <script src="{!! asset('theme/js/customjs/pagos.js') !!}?{{ $current_time }}"></script>
-    {{-- <script src="{!! asset('theme/js/customjs/pagos_forms.js') !!}"></script> --}}
+    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/controlsite.js')) ?: 1 }}"></script>
+   <script src="{!! asset('theme/js/customjs/pagos.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/pagos.js')) ?: 1 }}"></script>
+    {{-- <script src="{!! asset('theme/js/customjs/pagos_forms.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/pagos_forms.js')) ?: 1 }}"></script> --}}
 @endpush
 
 <style>

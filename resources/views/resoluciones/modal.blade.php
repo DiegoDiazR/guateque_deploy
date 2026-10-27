@@ -1,6 +1,6 @@
 @push('scripts')
     <script src="{!! asset('theme/plugins/bower_components/jquery-validation-1.19.5/jquery.validate.min.js') !!}"></script>
-    <script src="{!! asset('theme/js/customjs/resoluciones.js') !!}"></script>
+    <script src="{!! asset('theme/js/customjs/resoluciones.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/resoluciones.js')) ?: 1 }}"></script>
 @endpush
 <div id="modal-resolucion" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="modal-resolucion-label" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-md">

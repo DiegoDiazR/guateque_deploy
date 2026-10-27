@@ -41,7 +41,7 @@ class ResolucionesIgacController extends Controller
 
         //$request->session()->put('search', '1');
 
-        return view('resolucionesigac.create', ['opcion' => $opcion,
+        return view('ResolucionesIgac.create', ['opcion' => $opcion,
                                              'resoluciones_igac' => $resoluciones_igac,
                                              'tab_current' => $tab_current]);
     }

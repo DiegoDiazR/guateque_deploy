@@ -8,7 +8,7 @@
     {!! JsValidator::formRequest('App\Http\Requests\DescuentosUpdateFormRequest', '#update-form'); !!}
     <script src="{!! asset('theme/js/accounting.min.js') !!}"></script>
     <script src="{!! asset('theme/js/autonumeric.min.js') !!}"></script>
-    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}"></script>
+    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/controlsite.js')) ?: 1 }}"></script>
 @endpush
 @if(Session::get('tab_current'))
 <input type="hidden" id="tab" value="{{ Session::get('tab_current') }}">

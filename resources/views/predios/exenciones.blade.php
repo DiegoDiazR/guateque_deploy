@@ -11,7 +11,7 @@
     <script src="{!! asset('theme/js/autonumeric.min.js') !!}"></script>
     <script src="{!! asset('theme/plugins/bower_components/jquery.serializeJSON/jquery.serializejson.min.js') !!}"></script>
     {{-- <script src="{!! asset('theme/js/jquery.inputmask.bundle.min.js') !!}"></script> --}}
-    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}"></script>
+    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/controlsite.js')) ?: 1 }}"></script>
 @endpush
 @if(Session::get('tab_current'))
 <input type="hidden" id="tab" value="{{ Session::get('tab_current') }}">

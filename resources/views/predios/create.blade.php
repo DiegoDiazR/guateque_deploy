@@ -11,8 +11,8 @@
     <script src="{!! asset('theme/js/autonumeric.min.js') !!}"></script>
     <script src="{!! asset('theme/plugins/bower_components/jquery.serializeJSON/jquery.serializejson.min.js') !!}"></script>
     <script src="{!! asset('theme/plugins/bower_components/blockUI/jquery.blockUI.js') !!}"></script>
-    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}?{{ $current_time }}"></script>
-    <script src="{!! asset('theme/js/customjs/predios_forms.js') !!}?{{ $current_time }}"></script>
+    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/controlsite.js')) ?: 1 }}"></script>
+    <script src="{!! asset('theme/js/customjs/predios_forms.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/predios_forms.js')) ?: 1 }}"></script>
 @endpush
 @if(Session::get('tab_current'))
 <input type="hidden" id="tab" value="{{ Session::get('tab_current') }}">
@@ -784,7 +784,7 @@
                                                 <div class="col-lg-12 col-md-12 col-sm-12 col-sm-12">
                                                     <hr />
                                                     <h3 class="box-title">Informaci&oacute;n adicional - <span>&Uacute;ltimo pago</h3>
-                                                    <blockquote style="font-size: 97%; border-left: 5px solid #c9f018 !important;">
+                                                    <blockquote style="font-size: 97%; border-left: 5px solid var(--primario) !important;">
                                                         <form id="form-predios-datos-pagos">
                                                             <div class="form-body">
                                                                 <div class="row">
@@ -972,12 +972,12 @@
                                         </div>
                                     </div>
                                     <div id="div_anios_factura" class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="display: none; padding-top: 10px;">
-                                        <span style="color: #0ca65c; font-weight: 400;">A&ntilde;os cubiertos en la misma factura</span>
+                                        <span style="color: var(--ok); font-weight: 400;">A&ntilde;os cubiertos en la misma factura</span>
                                         <hr style="margin-top: 2px; margin-bottom: 0px;">
                                         <div class="row" id="lista_anios_factura">
                                         </div>
                                         <hr style="margin-top: 0px; margin-bottom: 2px;">
-                                        <span class="blink_me" style="color: #0ca65c; font-weight: 400; font-size: 85%; margin-bottom: 2px;">
+                                        <span class="blink_me" style="color: var(--ok); font-weight: 400; font-size: 85%; margin-bottom: 2px;">
                                             Por favor deseleccione los que a&ntilde;os NO desea que aparezcan en la factura actual.
                                             {{-- <br /><u>Recuerde que no se permiten selecciones de a&ntilde;os no consecutivos.</u> --}}
                                         </span>

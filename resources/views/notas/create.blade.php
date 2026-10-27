@@ -13,9 +13,9 @@
     <script src="{!! asset('theme/plugins/bower_components/jquery.serializeJSON/jquery.serializejson.min.js') !!}"></script>
     <script src="{!! asset('theme/plugins/bower_components/blockUI/jquery.blockUI.js') !!}"></script>
     <script src="{!! asset('theme/plugins/bower_components/bootstrap-filestyle/bootstrap-filestyle.min.js') !!}"></script>
-    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}"></script>
-    <script src="{!! asset('theme/js/customjs/load_file.js') !!}"></script>
-    <script src="{!! asset('theme/js/customjs/notas.js') !!}"></script>
+    <script src="{!! asset('theme/js/customjs/controlsite.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/controlsite.js')) ?: 1 }}"></script>
+    <script src="{!! asset('theme/js/customjs/load_file.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/load_file.js')) ?: 1 }}"></script>
+    <script src="{!! asset('theme/js/customjs/notas.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/notas.js')) ?: 1 }}"></script>
 @endpush
 @if(Session::get('tab_current'))
 <input type="hidden" id="tab" value="{{ Session::get('tab_current') }}">
