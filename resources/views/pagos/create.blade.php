@@ -225,7 +225,7 @@
                                                     <div class="pull-right" style="font-size: 55%;">
                                                         <label>
                                                             <mark>Buscar una factura:</mark>
-                                                            <input id="chk_search_factura" type="checkbox" value="0" class="js-switch" data-color="#99d683" data-size="small" />
+                                                            <input id="chk_search_factura" type="checkbox" value="0" class="js-switch" data-color="{{ config('municipio.color') }}" data-size="small" />
                                                         </label>
                                                     </div>
                                                     <hr />

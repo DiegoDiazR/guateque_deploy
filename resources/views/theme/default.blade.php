@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
@@ -9,17 +9,18 @@
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta http-equiv="refresh" content="{{ intval(config('session.lifetime')) * 60 }};url=/">
-    <link rel="icon" type="image/png" sizes="16x16" href="{!! asset('theme/plugins/images/favicon.png') !!}">
-    <title>Plataforma - ERPSoft Predial</title>
+    <link rel="icon" type="image/png" href="{{ asset(config('municipio.escudo')) }}">
+    <title>{{ config('municipio.sistema') }} | {{ config('municipio.alcaldia') }}</title>
     {{-- CSS comunes en un solo archivo (lista en config/theme_assets.php; se arma con php scripts/build_assets.php).
          Los plugins de una sola pantalla se agregan con @push('styles') en esa vista. --}}
     @include('theme.assets_css')
-    {{-- sidebar-nav: lo usa el menu lateral de este commit; el rediseno (menu horizontal) lo deja de cargar --}}
-    <link href="{!! asset('theme/plugins/bower_components/sidebar-nav/dist/sidebar-nav.min.css') !!}" rel="stylesheet">
 
+    {{-- Hoja de estilos del sistema (va al final para ganar sobre Bootstrap/Pixel Admin) y colores del municipio (config/municipio.php) --}}
+    <link href="{!! asset('theme/css/paipa.css') !!}?v={{ @filemtime(public_path('theme/css/paipa.css')) ?: 1 }}" rel="stylesheet">
+    @include('theme.identidad')
 </head>
 
-<body class="fix-header">
+<body class="paipa">
     <!-- ============================================================== -->
     <!-- Preloader -->
     <!-- ============================================================== -->
@@ -31,41 +32,24 @@
     <!-- ============================================================== -->
     <!-- Wrapper -->
     <!-- ============================================================== -->
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
     <div id="wrapper">
-        <!-- ============================================================== -->
-        <!-- Topbar header - style you can find in pages.scss -->
-        <!-- ============================================================== -->
-        <nav class="navbar navbar-default navbar-static-top m-b-0">
-            @include('theme.header')
-            {{-- @include('theme.header', ['template' => $template]) --}}
-        </nav>
-        <!-- End Top Navigation -->
-        <!-- ============================================================== -->
-        <!-- Left Sidebar - style you can find in sidebar.scss  -->
-        <!-- ============================================================== -->
-        <div class="navbar-default sidebar" role="navigation">
-            @include('theme.sidebar')
-        </div>
-        <!-- ============================================================== -->
-        <!-- End Left Sidebar -->
-        <!-- ============================================================== -->
-        <!-- ============================================================== -->
-        <!-- Page Content -->
-        <!-- ============================================================== -->
-        <div id="page-wrapper">
+        {{-- Encabezado (identidad del municipio, cuenta del usuario) y menú horizontal --}}
+        @include('theme.header')
+        {{-- Botones de tarea de cada pantalla (@section('buttons')): paipa.js los lleva a la franja del título --}}
+        @php $mpBotonesTarea = trim($__env->yieldContent('buttons')); @endphp
+        <main id="contenido" class="pagina-paipa" tabindex="-1">
+            @if ($mpBotonesTarea !== '')
+            <ul id="buttonsTareas" class="barra-tareas">
+                @yield('buttons')
+            </ul>
+            @endif
             @yield('content')
             @yield('modales')
             @yield('resolucion')
-            <footer class="footer text-center">
-                <script>document.write(new Date().getFullYear())</script>
-                &copy; ERPSoft Predial - Software Development Team
-            </footer>
-        </div>
-        <!-- ============================================================== -->
-        <!-- End Page Content -->
-        <!-- ============================================================== -->
+        </main>
+        @include('theme.footer')
     </div>
-    <!-- ============================================================== -->
     <!-- End Wrapper -->
     <!-- ============================================================== -->
     <!-- ============================================================== -->
@@ -75,6 +59,8 @@
          Los plugins de una sola pantalla se agregan con @push('scripts') en esa vista. --}}
     @include('theme.assets_js')
     <script src="{!! asset('theme/js/customjs/site.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/site.js')) ?: 1 }}"></script>
+    <!-- Menú horizontal, cuenta y franja del título -->
+    <script src="{!! asset('theme/js/customjs/paipa.js') !!}?v={{ @filemtime(public_path('theme/js/customjs/paipa.js')) ?: 1 }}"></script>
     @stack('scripts')
 </body>
 
