@@ -48,17 +48,20 @@
         @php($car = 0)
         @php($interescar = 0)
         @php($totalvigencia = 0)
+        {{-- RENDIMIENTO: las celdas de datos van SIN style/width/data-format porque PhpSpreadsheet tardaba ~4 ms por celda
+                     interpretandolos. Alineacion, formato $#,##0_- y anchos se aplican de una vez por columna en
+                     ExportCartera::registerEvents(). El resultado en Excel es el mismo. --}}
         @foreach($registros as $registro)
         <tr>
-            <td style="text-align: center;" width="8">{{ $registro->ultimo_anio }}</td>
-            <td style="text-align: center;" width="13">{{ $registro->factura_pago }}</td>
-            <td style="text-align: center;" width="27">{{ $registro->codigo_predio }}</td>
-            <td width="60">{{ $registro->nombre_propietario }}</td>
-            <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->predial }}</td>
-            <td style="text-align: right;" width="17" data-format="$#,##0_-">{{ $registro->interespredial }}</td>
-            <td style="text-align: right;" width="17" data-format="$#,##0_-">{{ $registro->car }}</td>
-            <td style="text-align: right;" width="17" data-format="$#,##0_-">{{ $registro->interescar }}</td>
-            <td style="text-align: right;" width="17" data-format="$#,##0_-">{{ $registro->totalvigencia }}</td>
+            <td>{{ $registro->ultimo_anio }}</td>
+            <td>{{ $registro->factura_pago }}</td>
+            <td>{{ $registro->codigo_predio }}</td>
+            <td>{{ $registro->nombre_propietario }}</td>
+            <td>{{ $registro->predial }}</td>
+            <td>{{ $registro->interespredial }}</td>
+            <td>{{ $registro->car }}</td>
+            <td>{{ $registro->interescar }}</td>
+            <td>{{ $registro->totalvigencia }}</td>
         </tr>
         @php($predial += $registro->predial)
         @php($interespredial += $registro->interespredial)

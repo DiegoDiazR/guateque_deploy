@@ -61,25 +61,28 @@
         @php($interesescaranteriores = 0)
         @php($totalcar = 0)
         @php($valor_facturado = 0)
+        {{-- RENDIMIENTO: las celdas de datos van SIN style/width/data-format porque PhpSpreadsheet tardaba ~4 ms por celda
+                     interpretandolos. Alineacion, formato $#,##0_- y anchos se aplican de una vez por columna en
+                     ExportPrediosPagos::registerEvents(). El resultado en Excel es el mismo. --}}
         @foreach($registros as $registro)
             <tr>
-                <td style="text-align: center;" width="8">{{ $registro->ultimo_anio }}</td>
-                <td style="text-align: center;" width="13">{{ $registro->factura_pago }}</td>
-                <td style="text-align: center;" width="27">{{ $registro->codigo_predio }}</td>
-                <td width="60">{{ $registro->nombre_propietario }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->predialanoactual }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->descuentopredial }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->predialanosanteriores }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->interesespredial }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->interesespredialanosanteriores }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->total_predial }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->caranoactual }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->descuentocar }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->caranoanteriores }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->interesescaractual }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->interesescaranteriores }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->totalcar }}</td>
-                <td style="text-align: right;" width="20" data-format="$#,##0_-">{{ $registro->valor_facturado }}</td>
+                <td>{{ $registro->ultimo_anio }}</td>
+                <td>{{ $registro->factura_pago }}</td>
+                <td>{{ $registro->codigo_predio }}</td>
+                <td>{{ $registro->nombre_propietario }}</td>
+                <td>{{ $registro->predialanoactual }}</td>
+                <td>{{ $registro->descuentopredial }}</td>
+                <td>{{ $registro->predialanosanteriores }}</td>
+                <td>{{ $registro->interesespredial }}</td>
+                <td>{{ $registro->interesespredialanosanteriores }}</td>
+                <td>{{ $registro->total_predial }}</td>
+                <td>{{ $registro->caranoactual }}</td>
+                <td>{{ $registro->descuentocar }}</td>
+                <td>{{ $registro->caranoanteriores }}</td>
+                <td>{{ $registro->interesescaractual }}</td>
+                <td>{{ $registro->interesescaranteriores }}</td>
+                <td>{{ $registro->totalcar }}</td>
+                <td>{{ $registro->valor_facturado }}</td>
             </tr>
             @php($predialanoactual += $registro->predialanoactual)
             @php($descuentopredial += $registro->descuentopredial)

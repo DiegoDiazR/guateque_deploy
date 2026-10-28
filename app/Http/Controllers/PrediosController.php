@@ -2606,26 +2606,19 @@ class PrediosController extends Controller
                                             TRIM(p.direccion) AS text,
                                             p.codigo_predio,
                                             ppr.id_predio,
-                                            CONCAT(\'(\', pro3.jerarquia, \') \', TRIM(pro3.nombre), \' - \', pro3.identificacion) AS propietarios,
+                                            CONCAT(\'(\', ppr3.jerarquia, \') \', TRIM(pro3.nombre), \' - \', pro3.identificacion) AS propietarios,
                                             ISNULL(ppa.id_predio, 0) AS tiene_pago
                                         from predios p left join
                                             predios_propietarios ppr
                                             on p.id = ppr.id_predio left join
-                                            predios_pagos ppa
+                                            (select distinct id_predio from predios_pagos) ppa
                                             on p.id = ppa.id_predio left join
                                             propietarios pro
                                             on (pro.id = ppr.id_propietario) left join
-                                            (select
-                                                p2.id, pro2.nombre, pro2.identificacion, ppr2.jerarquia
-                                            from
-                                                predios p2 left join
-                                                predios_propietarios ppr2
-                                                on (p2.id = ppr2.id_predio) left join
-                                                propietarios pro2
-                                                on (pro2.id = ppr2.id_propietario and ppr2.jerarquia = \'001\')
-                                            where pro2.id IS NOT NULL
-                                            ) pro3
-                                            on (pro3.id = p.id)
+                                            predios_propietarios ppr3
+                                            on (ppr3.id_predio = p.id and ppr3.jerarquia = \'001\') left join
+                                            propietarios pro3
+                                            on (pro3.id = ppr3.id_propietario)
                                         where p.estado = 1 and
                                             (LOWER(p.direccion) LIKE \'%'.$term.'%\' or
                                             LOWER(p.codigo_predio) LIKE \'%'.$term.'%\' or
@@ -2821,24 +2814,25 @@ class PrediosController extends Controller
             $anios = [];
             $array_anios = [];
 
-            foreach ($anios_con_factura as $anio) {
-                $lista_anios = [];
-                $anios_factura = DB::table('predios_pagos')
+            // Los anios de cada factura se traen en UNA consulta (antes era una por factura).
+            $anios_por_factura = [];
+            if (count($anios_con_factura) > 0) {
+                $filas_anios_factura = DB::table('predios_pagos')
                     ->where('id_predio', $data->{'id_predio'})
                     ->where('pagado', 0)
                     ->where('anulada', 0)
-                    ->where('factura_pago', $anio->factura_pago)
-                    ->select('predios_pagos.ultimo_anio')
+                    ->whereIn('factura_pago', $anios_con_factura->pluck('factura_pago')->all())
+                    ->select('predios_pagos.factura_pago', 'predios_pagos.ultimo_anio')
                     ->orderBy('ultimo_anio', 'desc')
                     ->get();
-                if (count($anios_factura) > 1) {
-                    foreach ($anios_factura as $anio_factura) {
-                        array_push($lista_anios, $anio_factura->ultimo_anio);
-                    }
-                    $anio->lista_anios = $lista_anios;
-                } else {
-                    $anio->lista_anios = $lista_anios;
+                foreach ($filas_anios_factura as $fila_anio) {
+                    $anios_por_factura[$fila_anio->factura_pago][] = $fila_anio->ultimo_anio;
                 }
+            }
+            foreach ($anios_con_factura as $anio) {
+                $anios_factura = isset($anios_por_factura[$anio->factura_pago]) ? $anios_por_factura[$anio->factura_pago] : [];
+                // igual que antes: la lista solo se llena cuando la factura cubre mas de un anio
+                $anio->lista_anios = count($anios_factura) > 1 ? $anios_factura : [];
                 array_push($anios, $anio);
             }
             foreach ($anios_sin_factura as $anio) {
@@ -2907,19 +2901,8 @@ class PrediosController extends Controller
                     order by pp.ultimo_anio'
                 );
 
-                $anios_exencion = DB::select('
-                    select
-                        pp.ultimo_anio
-                    from
-                        predios_pagos pp
-                    where
-                        pp.id_predio = '. $data->{'id_predio'} .' and
-                        pp.pagado = 0 and
-                        pp.anulada = 0 and
-                        pp.prescrito = 0 and
-                        pp.exencion = 0
-                    order by pp.ultimo_anio'
-                );
+                // misma consulta que la de prescripcion (identica): se reutiliza el resultado
+                $anios_exencion = $anios_prescripcion;
             }
 
             return response()->json(

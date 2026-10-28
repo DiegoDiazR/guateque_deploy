@@ -14,10 +14,13 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
 use Maatwebsite\Excel\Concerns\WithDrawings;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
@@ -25,7 +28,7 @@ use PhpOffice\PhpSpreadsheet\Style\Style;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ExportPrediosPagos implements FromView, WithTitle
+class ExportPrediosPagos implements FromView, WithTitle, WithEvents
     // implements FromCollection, WithHeadings, WithCustomStartCell, ShouldAutoSize,
     // WithColumnFormatting, WithMapping, WithStyles, WithDrawings //, WithDefaultStyles, FromView
 {
@@ -158,6 +161,40 @@ class ExportPrediosPagos implements FromView, WithTitle
     //     ];
     // }
 
+    /** Cantidad de filas de datos (se llena en view()); se usa en registerEvents(). */
+    protected $totalRegistros = 0;
+
+    /**
+     * Formato de las filas de datos. Antes cada celda llevaba style/width/data-format en el HTML y
+     * PhpSpreadsheet tardaba ~4 ms por celda en interpretarlos; ahora se aplica una sola vez por
+     * columna y el resultado en Excel es el mismo.
+     * Filas del HTML: 1-3 encabezado con logo, 4-5 titulos, 6 encabezados de columna, datos desde la 7.
+     */
+    public function registerEvents(): array {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                if ($this->totalRegistros < 1) {
+                    return;
+                }
+                $sheet = $event->sheet->getDelegate();
+                $primera = 7;
+                $ultima = 6 + $this->totalRegistros;
+
+                foreach (['A' => 8, 'B' => 13, 'C' => 27, 'D' => 60] as $col => $ancho) {
+                    $sheet->getColumnDimension($col)->setWidth($ancho);
+                }
+                foreach (range('E', 'Q') as $col) {
+                    $sheet->getColumnDimension($col)->setWidth(20);
+                }
+
+                $sheet->getStyle("A{$primera}:C{$ultima}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $valores = $sheet->getStyle("E{$primera}:Q{$ultima}");
+                $valores->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                $valores->getNumberFormat()->setFormatCode('$#,##0_-');
+            },
+        ];
+    }
+
     public function title(): string {
         return 'reporte';
     }
@@ -188,7 +225,7 @@ class ExportPrediosPagos implements FromView, WithTitle
                               ->where('parametros.nombre', 'ubicacion')
                               ->first();
 
-        return view('exports.reporteFacturadoEXCEL', [
+        $vista = view('exports.reporteFacturadoEXCEL', [
             'registros' => ViewPredialFacturado::select(
                         'ultimo_anio',
                         'factura_pago',
@@ -227,5 +264,9 @@ class ExportPrediosPagos implements FromView, WithTitle
             'fecha_inicial' => $this->fechaInicial,
             'fecha_final' => $this->fechaFinal
         ]);
+
+        $this->totalRegistros = count($vista->getData()['registros']);
+
+        return $vista;
     }
 }
