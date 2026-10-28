@@ -84,6 +84,33 @@
         if (window.innerWidth >= 992) { cerrarMenuMovil(); }
     });
 
+    // ---------- Cabecera fija ----------
+    // La cabecera es "sticky" (CSS). Con la página desplazada se compacta (body.desplazado) y el alto que pierde
+    // se pasa a su margen inferior, así el contenido no salta. Dos umbrales (80 y 20 px) separados más que lo que
+    // se achica la cabecera, para que el cambio de alto no dispare el cambio contrario.
+    var cabecera = $('.cabecera');
+    var compacta = false;
+    var pendiente = false;
+    function ajustarCabecera() {
+        pendiente = false;
+        if (!cabecera) { return; }
+        var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+        if (!compacta && y > 80) {
+            var antes = cabecera.offsetHeight;
+            compacta = true;
+            document.body.classList.add('desplazado');
+            cabecera.style.marginBottom = Math.max(0, antes - cabecera.offsetHeight) + 'px';
+        } else if (compacta && y < 20) {
+            compacta = false;
+            document.body.classList.remove('desplazado');
+            cabecera.style.marginBottom = '';
+        }
+    }
+    window.addEventListener('scroll', function () {
+        if (!pendiente) { pendiente = true; window.requestAnimationFrame(ajustarCabecera); }
+    }, { passive: true });
+    ajustarCabecera();
+
     // ---------- Franja del título ----------
     // Cada pantalla trae su ".bg-title" (título y rol). Aquí se completa: ícono de la opción activa del menú
     // y botones de tarea (@section('buttons')) a la derecha de la franja.

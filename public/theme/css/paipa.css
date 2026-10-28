@@ -140,7 +140,15 @@ body.paipa .form-control:focus-visible, body.paipa .btn:focus-visible { outline-
 .preloader .path { stroke: var(--primario) !important; animation: dash 1.5s ease-in-out infinite !important; }
 
 /* ===================== Encabezado ===================== */
-.cabecera { position: relative; z-index: 60; background: #fff; }
+/* Cabecera fija: logo, cuenta y menú acompañan al bajar la página. Con la página desplazada (body.desplazado,
+   lo pone paipa.js) se compacta; paipa.js también compensa con margin-bottom lo que se achica, para que el contenido no salte. */
+html { scroll-padding-top: 120px; }
+.cabecera { position: sticky; top: 0; z-index: 900; background: #fff; }
+body.desplazado .cabecera { box-shadow: 0 8px 20px -12px rgba(16, 32, 28, .55); }
+body.desplazado .cabecera::before { height: 3px; }
+body.desplazado .cabecera-fila { padding-block: 4px; }
+body.desplazado .marca-logo { height: 40px; }
+body.desplazado .menu-enlace { padding-block: 9px; }
 .cabecera::before { content: ""; display: block; height: 5px; background: linear-gradient(90deg, var(--oro), var(--oro-claro) 18%, var(--primario) 52%, var(--primario-oscuro)); }
 .cabecera-fila { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
 .marca { display: flex; align-items: center; gap: 16px; min-width: 0; text-decoration: none; color: inherit !important; }
@@ -223,6 +231,7 @@ body.paipa .form-control:focus-visible, body.paipa .btn:focus-visible { outline-
     .menu-barra { flex-direction: column; }
     .menu-fila { display: none; flex-direction: column; flex-wrap: nowrap; padding-bottom: 10px; }
     .menu.menu-abierto .menu-fila { display: flex; }
+    .menu.menu-abierto .menu-fila { max-height: calc(100vh - 150px); overflow-y: auto; }
     .menu-enlace { width: 100%; padding: 12px 10px; border-radius: 10px; }
     .menu-padre > .menu-enlace .menu-flecha { margin-left: auto; }
     .submenu { position: static; min-width: 0; margin: 2px 0 6px 18px; box-shadow: none; border: 0; border-left: 2px solid var(--linea-fuerte); border-radius: 0; background: transparent; padding: 2px 0 2px 8px; }
