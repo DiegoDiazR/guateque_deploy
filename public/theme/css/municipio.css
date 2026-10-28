@@ -12,6 +12,7 @@
 .marca-escudo .marca-texto span { font-size: 13.5px; }
 @media (min-width: 760px) {
     .marca-escudo .marca-texto { padding-left: 16px; border-left: 1px solid var(--linea-fuerte); }
+    .marca-escudo.marca-sin-imagen .marca-texto { padding-left: 0; border-left: 0; }
 }
 @media (max-width: 759px) {
     .marca-escudo { gap: 10px; }
@@ -19,13 +20,11 @@
     .marca-escudo .marca-texto strong { font-size: 15px; }
 }
 
-/* Login de un municipio sin foto: su escudo como marca de agua sobre el color */
-.entrada-foto.entrada-marca-agua {
-    inset: 0; z-index: -1; animation: none; opacity: .16; filter: grayscale(1) brightness(2.2);
-    background-size: auto 82%; background-position: 94% 50%; background-repeat: no-repeat;
-}
-@media (max-width: 959px) {
-    .entrada-foto.entrada-marca-agua { opacity: .1; background-size: auto 60%; background-position: 50% 108%; }
+/* Login de un municipio sin foto: solo color, con un resplandor suave abajo a la derecha */
+.entrada-sin-foto {
+    background:
+        radial-gradient(75% 95% at 90% 105%, rgba(var(--primario-rgb), .6) 0%, rgba(var(--primario-rgb), 0) 68%),
+        linear-gradient(135deg, var(--profundo) 0%, var(--primario-oscuro) 100%);
 }
 
 /* Pie sin columna de contacto: las otras dos se reparten el ancho */

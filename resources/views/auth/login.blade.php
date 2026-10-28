@@ -27,12 +27,10 @@
     </div>
 </header>
 <main id="contenido" tabindex="-1">
-<section class="entrada">
-    @php $mpFondo = \App\Support\Municipio::fondoUrl(); $mpMarcaAgua = $mpFondo ? null : \App\Support\Municipio::logoUrl(); @endphp
+@php $mpFondo = \App\Support\Municipio::fondoUrl(); @endphp
+<section class="entrada{{ $mpFondo ? '' : ' entrada-sin-foto' }}">
     @if ($mpFondo)
     <div class="entrada-foto" aria-hidden="true" style="background-image: url('{{ $mpFondo }}');"></div>
-    @elseif ($mpMarcaAgua)
-    <div class="entrada-foto entrada-marca-agua" aria-hidden="true" style="background-image: url('{{ $mpMarcaAgua }}');"></div>
     @endif
     <div class="contenedor entrada-fila">
         <div class="entrada-texto">

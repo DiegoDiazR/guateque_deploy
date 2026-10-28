@@ -19,7 +19,7 @@
     }
     $mpEtiqueta = isset($marcaEnlace) ? 'a' : 'span';
 @endphp
-<{{ $mpEtiqueta }} class="marca {{ $mpCompleto ? '' : 'marca-escudo' }}"@if (isset($marcaEnlace)) href="{{ $marcaEnlace }}" aria-label="{{ $mpNombre }}, inicio"@endif>
+<{{ $mpEtiqueta }} class="marca {{ $mpCompleto ? '' : 'marca-escudo' }}{{ $mpImagen ? '' : ' marca-sin-imagen' }}"@if (isset($marcaEnlace)) href="{{ $marcaEnlace }}" aria-label="{{ $mpNombre }}, inicio"@endif>
     @if ($mpImagen)
         <img class="marca-logo" src="{{ $mpImagen }}" alt="{{ $mpCompleto ? $mpNombre : 'Escudo de ' . \App\Support\Municipio::nombreCorto() }}">
     @endif

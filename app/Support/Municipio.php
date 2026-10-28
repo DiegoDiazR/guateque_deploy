@@ -30,6 +30,13 @@ class Municipio
     /** Segundos sin volver a intentar la base de datos después de un fallo (el login sigue rápido). */
     const ESPERA_FALLO = 30;
 
+    /**
+     * Segundos de espera para abrir la conexión con SQL Server al leer `parametros`. El controlador ODBC
+     * reintenta 4 veces, así que una base caída tarda unas 4 veces esto (con el valor por omisión del
+     * controlador serían 60 s y el login se quedaría colgado).
+     */
+    const ESPERA_CONEXION = 2;
+
     /** Carpeta (dentro de public/) donde viven los logos del parámetro `logo`. */
     const CARPETA_LOGOS = 'theme/plugins/images/';
 
@@ -73,7 +80,7 @@ class Municipio
 
         try {
             $mapa = [];
-            $filas = DB::table('parametros')->select('nombre', 'valor')->orderBy('id')->get();
+            $filas = self::conexion()->table('parametros')->select('nombre', 'valor')->orderBy('id')->get();
             foreach ($filas as $fila) {
                 $nombre = (string) $fila->nombre;
                 if (!array_key_exists($nombre, $mapa)) {
@@ -87,6 +94,18 @@ class Municipio
             self::cachePut($clave . '.fallo', 1, self::ESPERA_FALLO);
             return self::$parametros = self::ultimaLectura($clave);
         }
+    }
+
+    /** Conexión para leer `parametros`: la misma de la aplicación pero con poca espera al abrirla (solo SQL Server). */
+    private static function conexion()
+    {
+        $nombre = config('database.default');
+        $base = config('database.connections.' . $nombre);
+        if (is_array($base) && ($base['driver'] ?? '') === 'sqlsrv') {
+            config(['database.connections.municipio_parametros' => array_replace($base, ['login_timeout' => self::ESPERA_CONEXION])]);
+            return DB::connection('municipio_parametros');
+        }
+        return DB::connection();
     }
 
     private static function ultimaLectura($clave)
@@ -126,6 +145,14 @@ class Municipio
         }
     }
 
+    /** Para pruebas: fija el contenido de `parametros` sin tocar la base de datos ni la caché. */
+    public static function fijar(array $parametros)
+    {
+        self::$parametros = $parametros;
+        self::$slug = self::$perfil = null;
+        self::$archivos = [];
+    }
+
     /** Borra la memoria de esta petición y la caché (para pruebas o después de cambiar `parametros`). */
     public static function olvidar()
     {
@@ -147,6 +174,7 @@ class Municipio
      * santarosa, villadeleyva, sesquile (u otro si el sistema se instala en uno nuevo).
      * Prioridad: variable MUNICIPIO del .env; nombre del archivo del parámetro `logo`
      * (logo-guateque.png); nombre en el parámetro `alcaldia`; 'paipa'.
+     * Un archivo de logo con otro nombre (logo-escudo.png) no sirve para deducirlo: se pasa al siguiente.
      */
     public static function slug()
     {
@@ -159,10 +187,11 @@ class Municipio
             return self::$slug = $forzado;
         }
 
+        $deLogo = '';
         $logo = basename((string) self::param('logo', ''));
         if ($logo !== '' && preg_match('/^logo[-_ ]+(.+?)(?:[-_ ]*\d+)?\.[a-z0-9]+$/iu', $logo, $m)) {
             $deLogo = self::normalizarSlug($m[1]);
-            if ($deLogo !== '') {
+            if (in_array($deLogo, self::CONOCIDOS, true)) {
                 return self::$slug = $deLogo;
             }
         }
@@ -172,7 +201,8 @@ class Municipio
             return self::$slug = $deAlcaldia;
         }
 
-        return self::$slug = 'paipa';
+        // Municipio nuevo (sin perfil) cuyo logo se llama logo-<municipio>.png
+        return self::$slug = ($deLogo !== '' ? $deLogo : 'paipa');
     }
 
     /** "Villa de Leyva", "logo-santa-rosa" -> villadeleyva, santarosa. Reconoce los municipios conocidos. */
@@ -200,7 +230,7 @@ class Municipio
 
         $param = trim((string) self::param('alcaldia', ''));
         if ($param !== '') {
-            $texto = self::titulo($param);
+            $texto = preg_replace('/^Alcaldia\b/u', 'Alcaldía', self::titulo($param));
             // Con el nombre curado del perfil se corrigen las tildes que falten ("Sesquile" -> "Sesquilé").
             $ciudad = self::dato('ciudad');
             if ($ciudad !== null) {
@@ -247,13 +277,9 @@ class Municipio
         return $partes[1] !== '' ? $partes[1] : null;
     }
 
-    /** Parámetro `ubicacion` en título ("Guateque - Boyacá"); si falta, "Ciudad - Departamento". */
+    /** "Guateque - Boyacá": ciudad y departamento bien escritos (sale del perfil o del parámetro `ubicacion`). */
     public static function ubicacion()
     {
-        $param = trim((string) self::param('ubicacion', ''));
-        if ($param !== '') {
-            return self::titulo($param);
-        }
         $departamento = self::departamento();
         return self::nombreCorto() . ($departamento ? ' - ' . $departamento : '');
     }
