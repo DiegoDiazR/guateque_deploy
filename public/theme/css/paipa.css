@@ -969,3 +969,12 @@ body.pagina-error .error-tarjeta h1 { margin: 18px 0 8px; font: 700 clamp(22px, 
     .validation-card { box-shadow: none !important; border-color: #999 !important; }
     .validation-card .btn { display: none !important; }
 }
+
+/* Avisos "código de predio ya existe / disponible" (Predios): eran un h2 con <mark> gigante en tipografía de título */
+body.paipa #div_msg_predio_existe h2, body.paipa #div_msg_predio_disponible h2 { margin: 26px 0 0 !important; font: 600 14px/1.45 var(--sans); letter-spacing: 0; }
+body.paipa #div_msg_predio_existe mark, body.paipa #div_msg_predio_disponible mark {
+    display: inline-block; padding: 10px 14px; border-radius: 10px !important; font: 600 14px/1.45 var(--sans);
+    background: var(--alerta-fondo) !important; color: var(--alerta) !important; border: 1px solid #e8c66a; border-left: 4px solid var(--oro);
+}
+body.paipa #div_msg_predio_disponible mark { background: var(--ok-fondo) !important; color: var(--ok) !important; border-color: #a9dcbc; border-left-color: var(--ok); }
+
