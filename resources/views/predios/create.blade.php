@@ -777,7 +777,7 @@
                                                 </div>
                                                 <div class="form-actions m-t-20">
                                                     <button id="btn_save_edit" type="button" class="btn btn-info"> <i class="fa fa-save"></i> Actualizar informaci&oacute;n</button>
-                                                    <button id="btn_cancel_edit" type="button" class="btn btn-default"> <i class="fa fa-thumbs-down"></i> Cancelar</button>
+                                                    <button id="btn_cancel_edit" type="button" class="btn btn-default"> <i class="fa fa-times"></i> Cancelar</button>
                                                 </div>
                                             </form>
                                             <div class="row">
@@ -1201,7 +1201,7 @@
                                     </div>
                                     {{-- <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
                                         <div class="form-group" style="margin-bottom: 0px;">
-                                            <label for="excento_impuesto_check" class="control-label" style="display: block;">¿Excento impuesto?</label>
+                                            <label for="excento_impuesto_check" class="control-label" style="display: block;">¿Exento impuesto?</label>
                                             <input type="checkbox" id="excento_impuesto" name="excento_impuesto" value="{{ old('excento_impuesto') }}">
                                             <span id="span_excento_impuesto" class="text-muted" style="padding-left: 10px;">NO</span>
                                         </div>

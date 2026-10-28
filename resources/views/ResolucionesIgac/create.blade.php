@@ -352,7 +352,7 @@
                                                     </div>
                                                 <div class="form-actions m-t-20">
                                                     <button type="submit" class="btn btn-info"> <i class="fa fa-save"></i> Actualizar informaci&oacute;n</button>
-                                                    <button id="btn_cancel_edit" type="button" class="btn btn-default"> <i class="fa fa-thumbs-down"></i> Cancelar</button>
+                                                    <button id="btn_cancel_edit" type="button" class="btn btn-default"> <i class="fa fa-times"></i> Cancelar</button>
                                                 </div>
                                             </form>
                                         </div>

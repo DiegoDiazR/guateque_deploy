@@ -90,7 +90,7 @@ $(document).ready(function() {
             },
             {
                 // data: "valor_concepto2",
-                title: "Interes<br />Predial",
+                title: "Inter&eacute;s<br />Predial",
                 render: function(data, type, row, meta) {
                     return accounting.formatMoney(Number(row.valor_concepto2), "$ ", 0, ".", ",");
                 }
@@ -104,14 +104,14 @@ $(document).ready(function() {
             },
             {
                 // data: "valor_concepto4",
-                title: "Interes<br />CAR",
+                title: "Inter&eacute;s<br />CAR",
                 render: function(data, type, row, meta) {
                     return accounting.formatMoney(Number(row.valor_concepto4), "$ ", 0, ".", ",");
                 }
             },
             {
                 // data: "valor_concepto14",
-                title: "Interes<br />financiaci&oacute;n",
+                title: "Inter&eacute;s<br />financiaci&oacute;n",
                 render: function(data, type, row, meta) {
                     return accounting.formatMoney(Number(row.valor_concepto14), "$ ", 0, ".", ",");
                 }

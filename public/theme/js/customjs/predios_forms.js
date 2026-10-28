@@ -1113,10 +1113,10 @@ $(document).ready(function() {
             defaultContent: ''
         }, {
             data: 'exencion',
-            title: 'Excento',
+            title: 'Exento',
             defaultContent: ''
         }, {
-            title: 'Avaluo',
+            title: 'Avalúo',
             "render": function(data, type, row, meta) {
                 return accounting.formatMoney(Number(row.avaluo), "$ ", 2, ".", ",");
             }
@@ -1209,7 +1209,7 @@ $(document).ready(function() {
                 title: 'Vigencia',
                 defaultContent: ''
             }, {
-                title: 'Avaluo',
+                title: 'Avalúo',
                 "render": function(data, type, row, meta) {
                     return accounting.formatMoney(Number(row.avaluo), "$ ", 2, ".", ",");
                 }
@@ -1229,7 +1229,7 @@ $(document).ready(function() {
                     return accounting.formatMoney(Number(row.car), "$ ", 2, ".", ",");
                 }
             }, {
-                title: 'Interes CAR',
+                title: 'Interés CAR',
                 "render": function(data, type, row, meta) {
                     return accounting.formatMoney(Number(row.interes_car), "$ ", 2, ".", ",");
                 }

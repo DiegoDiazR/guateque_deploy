@@ -110,7 +110,7 @@
                                                     <div class="row">
                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                             <div class="form-group">
-                                                                <label class="control-label">Formula</label>
+                                                                <label class="control-label">F&oacute;rmula</label>
                                                                 <input type="text" id="formula" name="formula" class="form-control" autocomplete="off" placeholder="Ingrese formula" value="{{ old('formula') }}" maxlength="1024">
                                                                 <span class="text-danger">@error('formula') {{ $message }} @enderror</span>
                                                             </div>
@@ -348,7 +348,7 @@
                                                     <div class="row">
                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                             <div class="form-group">
-                                                                <label class="control-label">Formula</label>
+                                                                <label class="control-label">F&oacute;rmula</label>
                                                                 <input type="text" id="formula_edit" name="formula_edit" class="form-control" autocomplete="off" placeholder="Ingrese formula" value="{{ old('formula_edit') }}" maxlength="1024">
                                                                 <span class="text-danger">@error('formula_edit') {{ $message }} @enderror</span>
                                                             </div>
@@ -459,7 +459,7 @@
                                                 </div>
                                                 <div class="form-actions m-t-20">
                                                     <button type="submit" class="btn btn-info"> <i class="fa fa-save"></i> Actualizar informaci&oacute;n</button>
-                                                    <button id="btn_cancel_edit" type="button" class="btn btn-default"> <i class="fa fa-thumbs-down"></i> Cancelar</button>
+                                                    <button id="btn_cancel_edit" type="button" class="btn btn-default"> <i class="fa fa-times"></i> Cancelar</button>
                                                 </div>
                                             </form>
                                         </div>
