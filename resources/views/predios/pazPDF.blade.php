@@ -1,253 +1,138 @@
+{{--
+    Certificado de paz y salvo - plantilla COMPARTIDA (municipios sin formato propio: parametros.formato-paz = predios.pazPDF).
+    Estilo del portal de pago de predial. Los municipios con formato oficial propio (pazPDF_pai, _lacap, _srosa, _villa)
+    no pasan por aquí. La identidad (nombre, escudo, NIT, dirección, ubicación, colores) sale de App\Support\PdfIdentidad.
+    Texto legal y datos impresos: los mismos de la plantilla anterior. Documentación: docs/PDF.md
+--}}
+@php($id = \App\Support\PdfIdentidad::datos($logo ?? null, $alcaldia ?? null, $nit ?? null))
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="utf-8">
     <title>Paz y Salvo {{ $alcaldia }}</title>
+    @include('pdf._estilos', ['tam' => 'A4 portrait', 'arriba' => 112, 'abajo' => 58])
     <style>
-        @page {
-            margin: 0;
-        }
-        * { padding: 0; margin: 0; }
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_regular-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_regular-webfont.ttf') }}) format("truetype");
-            font-weight:400;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_regular_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_regular_italic-webfont.ttf') }}) format("truetype");
-            font-weight:400;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_light-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_light-webfont.ttf') }}) format("truetype");
-            font-weight:300;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_light_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_light_italic-webfont.ttf') }}) format("truetype");
-            font-weight:300;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_bold-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_bold-webfont.ttf') }}) format("truetype");
-            font-weight:700;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_bold_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_bold_italic-webfont.ttf') }}) format("truetype");
-            font-weight:700;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans Extended";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_extended-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_extended-webfont.ttf') }}) format("truetype");
-            font-weight:400
-        }
-
-        html,
-        body {
-            font-family: 'LATAM Sans';
-            padding: 10px;
-            margin: 10px;
-            /* margin:0;
-            padding:0; */
-            height:100%;
-        }
-        #container {
-            min-height:100%;
-            position:relative;
-        }
-        #header {
-            padding:10px;
-        }
-        #body {
-            padding:10px;
-        }
-        #footer {
-            position:absolute;
-            bottom:0;
-            width:100%;
-            height:40px;   /* Height of the footer */
-            text-align: center;
-            font-size: 60%;
-            border-top: 1px solid #c0c0c0;
-        }
-
-		/* div.page { width:100%; padding-top: 5%; padding-bottom: 100px; margin: 0 auto; } */
-        table { border-collapse: collapse; font-size: 100%; width: 100%; }
-        /* td { padding: 1px; } */
-        /* th { padding: 1px; background-color: #f3efef; } */
-		/* h3.title { width: 100%; text-align: center; } */
-
-        table.table-header tr td { border: 0px; font-size: 100%; }
-        p.header { width: 100%; text-align:center; font-weight: bold; padding: 0px; margin: 0px; font-size: 70%; }
-		table.titles tr td { border: 0px; font-size: 80%; text-align: center; }
-
-		table.info-encabezado tr th { text-align:justify; font-size: 80%; }
-		table.info-encabezado tr td { text-align:justify; font-size: 70%; }
-
-        table.info-predio tr th { font-size: 60%; border: 1px solid #000; padding: 1px; background-color: #f3efef; }
-		table.info-predio tr td { font-size: 60%; border: 1px solid #000; padding: 1px; }
-        table tr th.text-left, td.text-left { text-align: left; }
-        table tr th.text-center, td.text-center { text-align: center; }
-        table tr th.text-right, td.text-right { text-align: right; }
-
-        table.info-resumen tr th { font-size: 60%; border: 1px solid #000; padding: 1px; background-color: #f3efef; }
-		table.info-resumen tr td { font-size: 60%; border: 1px solid #000; padding: 1px; }
-
-        table.info-validez tr th { font-size: 60%; border: 0px; padding: 1px; }
-		table.info-validez tr td { font-size: 60%; border: 0px; padding: 1px; }
-
-        .info { font-size: 70%; }
-        .text-small { font-size: 40%; }
-		.negrilla {font-weight: bold;}
-
+        .pais { text-align: center; font-size: 7.6pt; letter-spacing: 1.6pt; color: {{ $id['c']['tenue'] }}; padding-bottom: 5pt; }
+        .quien { text-align: center; font-size: 10pt; font-weight: bold; letter-spacing: .3pt; padding-top: 22pt; }
+        .certifica { text-align: center; font-size: 13pt; font-weight: bold; color: {{ $id['c']['oscuro'] }}; letter-spacing: 3pt; padding-top: 5pt; }
+        .texto { font-size: 10pt; line-height: 1.6; text-align: justify; }
+        .ultimo { font-size: 9.6pt; padding-top: 7pt; }
+        .intro { font-size: 9.6pt; padding-top: 18pt; padding-bottom: 6pt; }
+        .pazysalvo { background-color: {{ $id['c']['tinte'] }}; border-left: 3.5pt solid {{ $id['c']['oro'] }}; padding: 10pt 12pt; font-size: 10.8pt; font-weight: bold; color: {{ $id['c']['oscuro'] }}; }
+        .destino { font-size: 10pt; padding-top: 12pt; }
+        table.cierre td { vertical-align: bottom; }
+        .rotulo-s { font-size: 6.8pt; font-weight: bold; letter-spacing: .3pt; color: {{ $id['c']['oscuro'] }}; }
+        .valor-s { font-size: 10pt; font-weight: bold; padding-bottom: 7pt; }
+        .linea-firma { border-top: 1pt solid {{ $id['c']['tinta'] }}; width: 82%; margin: 0 auto; padding-top: 4pt; font-size: 8.2pt; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="header">
-            <table class="table-header">
-                <tr>
-                    <td style="width: 20%; font-size: 60%; text-align: center;">
-                        <img style="margin-top: 20px; width: 50%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/theme/plugins/images/'. $logo))) }}" alt="Logo" />
-                    </td>
-                    <td>
-                        <p class="header">
-                            REP&Uacute;BLICA DE COLOMBIA
-                        </p>
-                        <p class="header">
-                            {{ strtoupper($alcaldia) }}
-                        </p>
-                        <p class="header">
-                            SECRETAR&Iacute;A DE HACIENDA
-                        </p>
-                        <p class="header">
-                            CERTIFICADO DE PAZ Y SALVO - IMPUESTO PREDIAL
-                        </p>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="body">
-            <table class="titles" style="width: 100%; margin-top: 0px;">
-                <tr>
-                    <td style="width: 100%;">
-                        <h3 class="title">EL SUSCRITO SECRETARIO DE HACIENDA MUNICIPAL</h3>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <h3 class="title" style="padding-top: 20px; padding-bottom: 20px;">CERTIFICA</h3>
-                    </td>
-                </tr>
-            </table>
-            <table class="info-encabezado" style="width: 100%; margin-top: 15px;">
-                <tr>
-                    <th style="width: 10%;">Certificado No:</th>
-                    <th style="width: 20%;">{{ $numero_certificado }}</th>
-                    <th style="width: 10%;">Cod. postal:</th>
-                    <th style="width: 20%;">{{ $codigo_postal }}</th>
-                </tr>
-            </table>
-            <table class="info-encabezado" style="width: 100%; margin-top: 10px;">
-                <tr>
-                    <td>
-                        <p>
-                            Que en los archivos de la tesorer&iacute;a municipal aparece inscrito el predio con c&oacute;digo catastral n&uacute;mero: <b>{{ $predio->codigo_predio }}</b> el cual figura a nombre de <b>{{ $propietario_ppal->nombre }}</b>, documento de identidad n&uacute;mero <b>{{ $propietario_ppal->identificacion }}</b> con las siguientes especificaciones.
-                            <br /><b>&Uacute;ltimo pago con factura No.:</b> {{ $ultimo_anio_pagado->factura_pago }}
-                            <br /><b>Fecha:</b> {{ substr($ultimo_anio_pagado->fecha_pago, 0, 10) }}
-                        </p>
-                    </td>
-                </tr>
-            </table>
-            <table class="info-predio" style="width: 100%; margin-top: 10px;">
-                <tr>
-                    <th rowspan="2" style="width: 50%;">DIRECCI&Oacute;N DEL PREDIO</th>
-                    <th rowspan="2" style="width: 8%;">UBICACI&Oacute;N</th>
-                    <th colspan="3" style="width: 15%;">&Aacute;REA</th>
-                    <th rowspan="2" style="width: 15%;">VALOR AVALUO</th>
-                    <th rowspan="2" style="width: 5%;">A&Ntilde;O AVALUO</th>
-                </tr>
-                <tr>
-                    <th>HA</th>
-                    <th>M2</th>
-                    <th>CONS</th>
-                </tr>
-                <tr>
-                    <td class="text-left">{{ $predio->direccion }}</td>
-                    <td class="text-center">{{ $predio->zonas_descripcion }}</td>
-                    <td class="text-center">{{ $predio->area_hectareas == '.00' ? 0 : str_replace('.00', '', $predio->area_hectareas) }}</td>
-                    <td class="text-center">{{ $predio->area_metros == '.00' ? 0 : str_replace('.00', '', $predio->area_metros) }}</td>
-                    <td class="text-center">{{ $predio->area_construida == '.00' ? 0 : str_replace('.00', '', $predio->area_construida) }}</td>
-                    <td class="text-center">@money($ultimo_anio_pagado->avaluo)</td>
-                    <td class="text-center">{{ $ultimo_anio_pagado->ultimo_anio }}</td>
-                </tr>
-            </table>
-            <div class="info" style="padding-top: 25px; padding-bottom: 15px; width: 100%;">
-                El cual est&aacute; registrado con los siguientes propietarios:
-            </div>
-            <table class="info-resumen" style="width: 100%; margin-top: 5px;">
-                <tr>
-                    <th class="text-left" style="width: 5%;">No.</th>
-                    <th class="text-left" style="width: 10%;">C&eacute;dula / NIT</th>
-                    <th class="text-left">Nombre</th>
-                </tr>
-                @foreach($propietarios as $propietario)
-                <tr>
-                    <td class="text-left">{{ strlen($propietario->jerarquia) < 3 ? str_pad(trim($propietario->jerarquia), 3, "0", STR_PAD_LEFT) : $propietario->jerarquia }}</td>
-                    <td class="text-left">{{ $propietario->identificacion }}</td>
-                    <td class="text-left">{{ $propietario->nombre }}</td>
-                </tr>
-                @endforeach
-            </table>
-            <div class="info" style="padding-top: 25px; width: 100%;">
-                El cual se encuentra a PAZ Y SALVO por concepto de impuesto predial.
-            </div>
-            <div class="info" style="padding-top: 10px; width: 100%;">
-                Expedido el {{ $fecha_expedicion }}
-            </div>
-            <div class="info" style="padding-top: 10px; width: 100%;">
-                Se expide con destino a: <b>{{ $destino }}</b>
-            </div>
-            <table class="info-validez" style="width: 100%; margin-top: 50px;">
-                <tr>
-                    <td style="width: 50%;">
-                        V&aacute;lido hasta <b>{{ $fecha_validez }}</b>
-                    </td>
-                    <td style="text-align: center;">
-                        <hr style="margin: 0 auto; border: 1px solid #302f2f; width: 80%;">
-                    </td>
-                </tr>
-                <tr>
-                    <td>Valor <b>{{ $valor }}</b> Pesos m/cte.</td>
-                    <td style="text-align: center;">SECRETARIO DE HACIENDA</td>
-                </tr>
-                <tr>
-                    <td style="padding-top: 20px;" colspan="2">NO SE COBRA IMPUESTO POR VALORIZACI&Oacute;N.</td>
-                </tr>
-                <tr>
-                    <td class="text-small" colspan="2">P&aacute;gina 1 de 1</td>
-                </tr>
-                <tr>
-                    <td class="text-small" colspan="2">Elabor&oacute;: <b>{{ $usuario }}</b></td>
-                </tr>
-            </table>
-        </div>
-        <div id="footer">
-            SECRETAR&Iacute;A DE HACIENDA
-        </div>
+    @include('pdf._marco', [
+        'caja' => ['rotulo' => 'CERTIFICADO No.', 'valor' => $numero_certificado, 'l1' => 'Expedido el', 'l2' => $fecha_expedicion],
+        'pie_izq' => 'Elaboró: ' . $usuario,
+        'pagina_fija' => count($propietarios) <= 10 ? 'Página 1 de 1' : null,
+    ])
+
+    <div class="pais">REPÚBLICA DE COLOMBIA</div>
+    <div class="titulo">CERTIFICADO DE PAZ Y SALVO</div>
+    <div class="subtitulo">IMPUESTO PREDIAL</div>
+    <div class="regla"></div>
+
+    <div class="quien">EL SUSCRITO SECRETARIO DE HACIENDA MUNICIPAL</div>
+    <div class="certifica">CERTIFICA</div>
+
+    <table style="margin-top: 18pt;">
+        <tr>
+            <td class="texto">
+                Que en los archivos de la tesorería municipal aparece inscrito el predio con código catastral número: <b>{{ $predio->codigo_predio }}</b> el cual figura a nombre de <b>{{ $propietario_ppal->nombre }}</b>, documento de identidad número <b>{{ $propietario_ppal->identificacion }}</b> con las siguientes especificaciones.
+            </td>
+        </tr>
+        <tr>
+            <td class="ultimo">
+                <b>Último pago con factura No.:</b> {{ $ultimo_anio_pagado->factura_pago }} &nbsp;&nbsp;&nbsp;<b>Fecha:</b> {{ substr($ultimo_anio_pagado->fecha_pago, 0, 10) }}
+            </td>
+        </tr>
+    </table>
+
+    <table class="ficha" style="margin-top: 12pt; table-layout: fixed;">
+        <tr>
+            <td class="rot" style="width: 17%;">CÓDIGO CATASTRAL</td>
+            <td colspan="3" style="width: 48%;">{{ $predio->codigo_predio }}</td>
+            <td class="rot" style="width: 19%;">UBICACIÓN</td>
+            <td style="width: 16%;">{{ $predio->zonas_descripcion }}</td>
+        </tr>
+        <tr>
+            <td class="rot">DIRECCIÓN DEL PREDIO</td>
+            <td colspan="5">{{ $predio->direccion }}</td>
+        </tr>
+        @if(!empty($codigo_postal))
+        <tr>
+            <td class="rot">CÓD. POSTAL</td>
+            <td colspan="5">{{ $codigo_postal }}</td>
+        </tr>
+        @endif
+        <tr>
+            <td class="rot">ÁREA (HA)</td>
+            <td class="cent" style="width: 15%;">{{ $predio->area_hectareas == '.00' ? 0 : str_replace('.00', '', $predio->area_hectareas) }}</td>
+            <td class="rot" style="width: 17%;">ÁREA (M2)</td>
+            <td class="cent" style="width: 16%;">{{ $predio->area_metros == '.00' ? 0 : str_replace('.00', '', $predio->area_metros) }}</td>
+            <td class="rot">ÁREA CONSTRUIDA (M2)</td>
+            <td class="cent">{{ $predio->area_construida == '.00' ? 0 : str_replace('.00', '', $predio->area_construida) }}</td>
+        </tr>
+        <tr>
+            <td class="rot">VALOR AVALÚO</td>
+            <td colspan="3">@money($ultimo_anio_pagado->avaluo)</td>
+            <td class="rot">AÑO AVALÚO</td>
+            <td class="cent">{{ $ultimo_anio_pagado->ultimo_anio }}</td>
+        </tr>
+    </table>
+
+    <div class="intro">El cual está registrado con los siguientes propietarios:</div>
+    <table class="datos">
+        <thead>
+            <tr>
+                <th class="izq" style="width: 8%;">No.</th>
+                <th class="izq" style="width: 22%;">Cédula / NIT</th>
+                <th class="izq">Nombre</th>
+            </tr>
+        </thead>
+        @foreach($propietarios as $propietario)
+        <tr class="{{ $loop->iteration % 2 == 0 ? 'par' : '' }}">
+            <td class="izq">{{ strlen($propietario->jerarquia) < 3 ? str_pad(trim($propietario->jerarquia), 3, "0", STR_PAD_LEFT) : $propietario->jerarquia }}</td>
+            <td class="izq">{{ $propietario->identificacion }}</td>
+            <td class="izq">{{ $propietario->nombre }}</td>
+        </tr>
+        @endforeach
+    </table>
+
+    <div style="padding-top: 18pt;">
+        <div class="pazysalvo">El cual se encuentra a PAZ Y SALVO por concepto de impuesto predial.</div>
     </div>
+    <div class="destino">Se expide con destino a: <b>{{ $destino }}</b></div>
+
+    <table class="cierre" style="margin-top: 34pt; page-break-inside: avoid;">
+        <tr>
+            <td style="width: 24%;">
+                @if(!empty($qr_token) && !empty($qr_code))
+                <div style="width: 86pt; text-align: center; border: .8pt solid {{ $id['c']['linea2'] }}; padding: 5pt 3pt 4pt 3pt;">
+                    <img src="data:image/png;base64,{{ $qr_code }}" style="width: 74pt; height: 74pt;" alt="QR" />
+                    <div style="font-size: 6.6pt; color: {{ $id['c']['tenue'] }}; padding-top: 2pt;">Verificar autenticidad</div>
+                </div>
+                @endif
+            </td>
+            <td style="width: 31%;">
+                <div class="rotulo-s">VÁLIDO HASTA</div>
+                <div class="valor-s">{{ $fecha_validez }}</div>
+                <div class="rotulo-s">VALOR</div>
+                <div class="valor-s" style="padding-bottom: 0;">{{ $valor }} <span style="font-size: 8pt; font-weight: normal;">Pesos m/cte.</span></div>
+            </td>
+            <td style="width: 45%; text-align: center;">
+                <div style="height: 64pt;">&nbsp;</div>
+                <div class="linea-firma">SECRETARIO DE HACIENDA</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="padding-top: 22pt; font-size: 8.6pt; font-weight: bold; color: {{ $id['c']['oscuro'] }};">NO SE COBRA IMPUESTO POR VALORIZACIÓN.</div>
 </body>
 </html>

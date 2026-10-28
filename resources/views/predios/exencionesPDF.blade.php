@@ -1,207 +1,91 @@
+{{--
+    Lista de exenciones - plantilla COMPARTIDA por todos los municipios (estilo del portal de pago). Papel A4 horizontal.
+    Identidad (nombre, escudo, NIT, colores) desde App\Support\PdfIdentidad. Mismos datos que la plantilla anterior.
+    Documentación: docs/PDF.md
+--}}
+@php($id = \App\Support\PdfIdentidad::datos($logo ?? null, $alcaldia ?? null, $nit ?? null))
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Exenciones predial</title>
+    <meta charset="utf-8">
+    <title>Lista de exenciones</title>
+    @include('pdf._estilos', ['tam' => 'A4 landscape'])
     <style>
-        @page {
-            margin: 0;
-        }
-        * { padding: 0; margin: 0; }
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_regular-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_regular-webfont.ttf') }}) format("truetype");
-            font-weight:400;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_regular_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_regular_italic-webfont.ttf') }}) format("truetype");
-            font-weight:400;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_light-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_light-webfont.ttf') }}) format("truetype");
-            font-weight:300;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_light_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_light_italic-webfont.ttf') }}) format("truetype");
-            font-weight:300;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_bold-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_bold-webfont.ttf') }}) format("truetype");
-            font-weight:700;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_bold_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_bold_italic-webfont.ttf') }}) format("truetype");
-            font-weight:700;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans Extended";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_extended-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_extended-webfont.ttf') }}) format("truetype");
-            font-weight:400
-        }
-
-        html,
-        body {
-            font-family: 'LATAM Sans';
-            padding: 10px;
-            margin: 10px;
-            /* margin:0;
-            padding:0; */
-            height:100%;
-        }
-        #container {
-            min-height:100%;
-            position:relative;
-        }
-        #header {
-            padding:10px;
-        }
-        #body {
-            padding:10px;
-        }
-        #footer {
-            position:absolute;
-            bottom:0;
-            width:100%;
-            height:35px;   /* Height of the footer */
-            text-align: center;
-            font-size: 80%;
-            border-top: 1px solid #c0c0c0;
-        }
-
-		/* div.page { width:100%; padding-top: 5%; padding-bottom: 100px; margin: 0 auto; } */
-        table { border-collapse: collapse; font-size: 100%; width: 100%; }
-        /* td { padding: 1px; } */
-        /* th { padding: 1px; background-color: #f3efef; } */
-		/* h3.title { width: 100%; text-align: center; } */
-
-        table.table-header tr td { border: 0px; font-size: 70%; }
-        p.header { width: 100%; text-align:center; font-weight: bold; padding: 0px; margin: 0px; }
-		table.titles tr td { border: 0px; font-size: 80%; text-align: center; }
-
-		table.info-encabezado tr th { text-align:justify; font-size: 80%; }
-		table.info-encabezado tr td { text-align:justify; font-size: 70%; }
-
-        table.info-predio tr th { font-size: 50%; border: 1px solid #000; padding: 1px; background-color: #f3efef; }
-		table.info-predio tr td { font-size: 50%; border: 1px solid #000; padding: 1px; }
-        table tr th.text-left, td.text-left { text-align: left; }
-        table tr th.text-center, td.text-center { text-align: center; }
-        table tr th.text-right, td.text-right { text-align: right; }
-
-        table.info-resumen tr th { font-size: 60%; border: 1px solid #000; padding: 1px; background-color: #f3efef; }
-		table.info-resumen tr td { font-size: 60%; border: 1px solid #000; padding: 1px; }
-
-        table.info-validez tr th { font-size: 60%; border: 0px; padding: 1px; }
-		table.info-validez tr td { font-size: 60%; border: 0px; padding: 1px; }
-
-        .info { font-size: 70%; }
-        .text-small { font-size: 40%; }
-		.negrilla {font-weight: bold;}
-
+        table.datos td.num { text-align: right; }
+        table.datos td.cen { text-align: center; }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="header">
-            <table class="table-header">
-                <tr>
-                    <td style="width: 20%;">
-                        <img style="width: 40%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/theme/plugins/images/'. $logo))) }}" alt="Logo" />
-                    </td>
-                    <td>
-                        <p class="header">REP&Uacute;BLICA DE COLOMBIA</p>
-                        <p class="header">{{ strtoupper($alcaldia) }}</p>
-                        <p class="header">NIT {{ $nit }}</p>
-                        <p class="header">LISTA DE EXENCIONES</p>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="body">
-            <table class="info-predio" style="width: 100%; margin-top: 10px;">
-                <tr>
-                    <th style="width: auto;">FECHA<br />EXENCION</th>
-                    <th style="width: auto;">CODIGO<br />PREDIO</th>
-                    <th style="width: auto;">VIGENCIA</th>
-                    <th style="width: auto;">PORCENTAJE</th>
-                    <th style="width: auto;">PREDIAL</th>
-                    <th style="width: auto;">INTERES<br />PREDIAL</th>
-                    <th style="width: auto;">CAR</th>
-                    <th style="width: auto;">INTERES<br />CAR</th>
-                    <th style="width: auto;">DESCUENTO<br />PREDIAL</th>
-                    <th style="width: auto;">DESCUENTO<br />CAR</th>
-                    <th style="width: auto;">TASA<br />BOMBERIL</th>
-                    <th style="width: auto;">ALUMBRADO</th>
-                </tr>
-                @if (count($exenciones) > 0)
-                @php($suma_valor_concepto1 = 0)
-                @php($suma_valor_concepto2 = 0)
-                @php($suma_valor_concepto3 = 0)
-                @php($suma_valor_concepto4 = 0)
-                @php($suma_valor_concepto13 = 0)
-                @php($suma_valor_concepto15 = 0)
-                @php($suma_valor_concepto16 = 0)
-                @php($suma_valor_concepto18 = 0)
-                @foreach($exenciones as $exencion)
-                <tr>
-                    <td class="text-center">{{ substr($exencion->created_at, 0, 10) }}</td>
-                    <td class="text-center">{{ $exencion->codigo_predio }}</td>
-                    <td class="text-center">{{ $exencion->exencion_anio }}</td>
-                    <td class="text-center">{{ number_format($exencion->porcentaje, 2) }}%</td>
-                    <td class="text-right">@money($exencion->valor_concepto1)</td>
-                    <td class="text-right">@money($exencion->valor_concepto2)</td>
-                    <td class="text-right">@money($exencion->valor_concepto3)</td>
-                    <td class="text-right">@money($exencion->valor_concepto4)</td>
-                    <td class="text-right">@money($exencion->valor_concepto13)</td>
-                    <td class="text-right">@money($exencion->valor_concepto15)</td>
-                    <td class="text-right">@money($exencion->valor_concepto16)</td>
-                    <td class="text-right">@money($exencion->valor_concepto18)</td>
-                </tr>
-                @php($suma_valor_concepto1 += $exencion->valor_concepto1)
-                @php($suma_valor_concepto2 += $exencion->valor_concepto2)
-                @php($suma_valor_concepto3 += $exencion->valor_concepto3)
-                @php($suma_valor_concepto4 += $exencion->valor_concepto4)
-                @php($suma_valor_concepto13 += $exencion->valor_concepto13)
-                @php($suma_valor_concepto15 += $exencion->valor_concepto15)
-                @php($suma_valor_concepto16 += $exencion->valor_concepto16)
-                @php($suma_valor_concepto18 += $exencion->valor_concepto18)
-                @endforeach
-                <tr class="totales">
-                    <th class="text-right" colspan="4">TOTAL PAGO</th>
-                    <th class="text-right">@money($suma_valor_concepto1)</th>
-                    <th class="text-right">@money($suma_valor_concepto2)</th>
-                    <th class="text-right">@money($suma_valor_concepto3)</th>
-                    <th class="text-right">@money($suma_valor_concepto4)</th>
-                    <th class="text-right">@money($suma_valor_concepto13)</th>
-                    <th class="text-right">@money($suma_valor_concepto15)</th>
-                    <th class="text-right">@money($suma_valor_concepto16)</th>
-                    <th class="text-right">@money($suma_valor_concepto18)</th>
-                </tr>
-                @else
-                <tr>
-                    <td colspan="12" class="text-center" style="font-size: 110%;">NO HAY INFORMACI&Oacute;N DISPONIBLE</td>
-                </tr>
-                @endif
-            </table>
-        </div>
-        <div id="footer">
-            SECRETAR&Iacute;A DE HACIENDA
-        </div>
-    </div>
+    @include('pdf._marco', [
+        'caja' => ['rotulo' => 'LISTA DE EXENCIONES', 'valor' => count($exenciones), 'l1' => 'registros'],
+    ])
+
+    <table class="datos">
+        <thead>
+            <tr>
+                <th>FECHA<br />EXENCION</th>
+                <th>CODIGO<br />PREDIO</th>
+                <th>VIGENCIA</th>
+                <th>PORCENTAJE</th>
+                <th>PREDIAL</th>
+                <th>INTERES<br />PREDIAL</th>
+                <th>CAR</th>
+                <th>INTERES<br />CAR</th>
+                <th>DESCUENTO<br />PREDIAL</th>
+                <th>DESCUENTO<br />CAR</th>
+                <th>TASA<br />BOMBERIL</th>
+                <th>ALUMBRADO</th>
+            </tr>
+        </thead>
+        @if (count($exenciones) > 0)
+        @php($suma_valor_concepto1 = 0)
+        @php($suma_valor_concepto2 = 0)
+        @php($suma_valor_concepto3 = 0)
+        @php($suma_valor_concepto4 = 0)
+        @php($suma_valor_concepto13 = 0)
+        @php($suma_valor_concepto15 = 0)
+        @php($suma_valor_concepto16 = 0)
+        @php($suma_valor_concepto18 = 0)
+        @foreach($exenciones as $exencion)
+        <tr class="{{ $loop->iteration % 2 == 0 ? 'par' : '' }}">
+            <td class="cen nw">{{ substr($exencion->created_at, 0, 10) }}</td>
+            <td class="cen nw">{{ $exencion->codigo_predio }}</td>
+            <td class="cen"><b>{{ $exencion->exencion_anio }}</b></td>
+            <td class="cen">{{ number_format($exencion->porcentaje, 2) }}%</td>
+            <td class="num">@money($exencion->valor_concepto1)</td>
+            <td class="num">@money($exencion->valor_concepto2)</td>
+            <td class="num">@money($exencion->valor_concepto3)</td>
+            <td class="num">@money($exencion->valor_concepto4)</td>
+            <td class="num">@money($exencion->valor_concepto13)</td>
+            <td class="num">@money($exencion->valor_concepto15)</td>
+            <td class="num">@money($exencion->valor_concepto16)</td>
+            <td class="num">@money($exencion->valor_concepto18)</td>
+        </tr>
+        @php($suma_valor_concepto1 += $exencion->valor_concepto1)
+        @php($suma_valor_concepto2 += $exencion->valor_concepto2)
+        @php($suma_valor_concepto3 += $exencion->valor_concepto3)
+        @php($suma_valor_concepto4 += $exencion->valor_concepto4)
+        @php($suma_valor_concepto13 += $exencion->valor_concepto13)
+        @php($suma_valor_concepto15 += $exencion->valor_concepto15)
+        @php($suma_valor_concepto16 += $exencion->valor_concepto16)
+        @php($suma_valor_concepto18 += $exencion->valor_concepto18)
+        @endforeach
+        <tr class="totales">
+            <th colspan="4">TOTAL PAGO</th>
+            <th>@money($suma_valor_concepto1)</th>
+            <th>@money($suma_valor_concepto2)</th>
+            <th>@money($suma_valor_concepto3)</th>
+            <th>@money($suma_valor_concepto4)</th>
+            <th>@money($suma_valor_concepto13)</th>
+            <th>@money($suma_valor_concepto15)</th>
+            <th>@money($suma_valor_concepto16)</th>
+            <th>@money($suma_valor_concepto18)</th>
+        </tr>
+        @else
+        <tr>
+            <td colspan="12" class="vacio">NO HAY INFORMACIÓN DISPONIBLE</td>
+        </tr>
+        @endif
+    </table>
 </body>
 </html>
