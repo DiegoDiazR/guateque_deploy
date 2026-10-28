@@ -257,20 +257,20 @@ body.paipa .form-control:focus-visible, body.paipa .btn:focus-visible { outline-
     .bg-title > [class*="col-"]:nth-child(2) { position: static; transform: none; }
 }
 
-/* Botones de tarea (DBP, DP, DA, ...): a la izquierda de la franja; sin franja quedan como barra propia */
-.barra-tareas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; list-style: none; margin: 0; padding: 10px clamp(14px, 2.4vw, 36px); background: #fff; border-bottom: 1px solid var(--linea); }
-.barra-tareas.en-franja { position: absolute; left: 0; top: 50%; transform: translateY(-50%); padding: 0; background: none; border: 0; }
-.barra-tareas li { display: inline-flex; margin: 0; padding: 0; float: none; }
+/* Botones de tarea (Datos básicos, Propietarios, ...): barra propia justo debajo de la franja del título, con el nombre completo */
+.barra-tareas { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; list-style: none; margin: 0 auto; padding: 0 clamp(14px, 2.4vw, 36px); background: none; border: 0; max-width: 1360px; }
+.barra-tareas li { display: inline-flex; margin: 14px 0 0; padding: 0; float: none; }
 .barra-tareas li > a {
-    display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 10px; text-decoration: none;
-    font: 600 13px var(--sans); line-height: 1.2; color: var(--primario-oscuro) !important; background: var(--suave);
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; text-decoration: none;
+    font: 600 13.5px/1.2 var(--sans); color: var(--primario-oscuro) !important; background: #fff; border: 1.5px solid var(--linea-fuerte);
+    box-shadow: 0 6px 14px -12px rgba(16, 32, 28, .5); transition: background .15s, border-color .15s, color .15s;
 }
-.barra-tareas li > a:hover { background: var(--suave-fuerte); }
-.barra-tareas.en-franja li > a { color: #fff !important; background: rgba(255, 255, 255, .16); }
-.barra-tareas.en-franja li > a:hover { background: rgba(255, 255, 255, .3); }
-.barra-tareas li > a i { font-size: 15px; line-height: 1; }
-@media (max-width: 1199px) {
-    .barra-tareas.en-franja { position: static; transform: none; justify-content: center; order: 3; flex-basis: 100%; padding: 4px 0 2px; }
+.barra-tareas li > a:hover, .barra-tareas li > a:focus-visible { background: var(--primario); border-color: var(--primario); color: #fff !important; }
+.barra-tareas li > a i { font-size: 16px; line-height: 1; order: -1; }
+.barra-tareas li > a .hidden-xs { display: inline !important; }
+@media (max-width: 575px) {
+    .barra-tareas li > a { padding: 8px 13px; font-size: 13px; }
+}
 }
 
 /* ===================== Contenido ===================== */
@@ -628,14 +628,33 @@ body.paipa .breadcrumb { background: none; }
 .sweet-alert .sa-icon.sa-error .sa-line { background-color: var(--pendiente); }
 .sweet-alert input, .sweet-alert textarea { border-radius: 10px; border: 1.5px solid var(--linea-fuerte); }
 
-/* Avisos emergentes (jquery.toast) */
-.jq-toast-single { border-radius: 12px; font: 500 13.5px/1.45 var(--sans) !important; box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .45); padding: 14px 16px; }
-.jq-toast-single.jq-has-icon { padding: 14px 16px 14px 50px; background-position: 14px center; }
-.jq-toast-single h2 { font: 700 14px var(--sans) !important; }
-.jq-icon-info { background-color: var(--info) !important; border-color: var(--info) !important; color: #fff !important; }
-.jq-icon-success { background-color: var(--ok) !important; border-color: var(--ok) !important; color: #fff !important; }
-.jq-icon-warning { background-color: var(--alerta) !important; border-color: var(--alerta) !important; color: #fff !important; }
-.jq-icon-error { background-color: var(--pendiente) !important; border-color: var(--pendiente) !important; color: #fff !important; }
+/* Avisos emergentes (jquery.toast): tarjeta clara con franja de color y círculo con símbolo (antes eran bloques de color sólido) */
+.jq-toast-wrap { width: min(390px, calc(100vw - 24px)) !important; }
+.jq-toast-wrap.top-right { top: 18px !important; right: 18px !important; }
+.jq-toast-single {
+    position: relative; border-radius: 14px; border: 1px solid var(--linea) !important; border-left: 5px solid var(--primario) !important;
+    background: #fff !important; background-image: none !important; color: var(--tinta) !important;
+    font: 500 13.5px/1.5 var(--sans) !important; padding: 14px 36px 14px 16px !important; margin: 0 0 10px !important;
+    box-shadow: 0 18px 40px -18px rgba(16, 32, 28, .5) !important; overflow: hidden;
+}
+.jq-toast-single.jq-has-icon { padding-left: 58px !important; }
+.jq-toast-single.jq-has-icon::before {
+    content: "i"; position: absolute; left: 15px; top: 14px; width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font: 700 15px/1 var(--serif); color: #fff; background: var(--info);
+}
+.jq-toast-single h2 { font: 700 14px/1.3 var(--sans) !important; color: var(--tinta) !important; margin: 0 0 3px !important; letter-spacing: 0; }
+.jq-toast-single a { color: var(--primario-oscuro) !important; border-bottom-color: currentColor !important; }
+.jq-toast-single ul li { color: var(--tinta); }
+.close-jq-toast-single { top: 8px !important; right: 12px !important; font-size: 18px !important; line-height: 1; color: var(--tenue) !important; font-weight: 400; }
+.close-jq-toast-single:hover { color: var(--tinta) !important; }
+.jq-toast-loader { height: 3px !important; background: var(--primario) !important; opacity: .55; }
+.jq-toast-single.jq-icon-info    { border-left-color: var(--info) !important; }
+.jq-toast-single.jq-icon-success { border-left-color: var(--ok) !important; }
+.jq-toast-single.jq-icon-success::before { content: "\2713"; background: var(--ok); }
+.jq-toast-single.jq-icon-warning { border-left-color: var(--oro) !important; }
+.jq-toast-single.jq-icon-warning::before { content: "!"; background: var(--oro); color: #3a2a00; font-family: var(--sans); }
+.jq-toast-single.jq-icon-error   { border-left-color: var(--pendiente) !important; }
+.jq-toast-single.jq-icon-error::before { content: "\00D7"; background: var(--pendiente); font-family: var(--sans); font-size: 20px; }
 
 /* ===================== Detalles propios del sistema ===================== */
 body.paipa span.span_predio { color: var(--primario-oscuro); font-family: var(--mono); font-size: 150%; }

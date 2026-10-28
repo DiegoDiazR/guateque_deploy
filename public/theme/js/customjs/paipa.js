@@ -104,10 +104,20 @@
             titulo.insertBefore(span, titulo.firstChild);
         }
 
+        // Botones de tarea: barra propia justo debajo de la franja, con el nombre completo en vez de las siglas
+        // (DBP, DP, DA...). Se quita el tooltip: el nombre ya se ve y el tooltip quedaba cortado por la franja.
         var tareas = $('#buttonsTareas');
-        if (tareas && !franja.contains(tareas)) {
-            tareas.classList.add('en-franja');
-            franja.appendChild(tareas);
+        if (tareas) {
+            Array.prototype.forEach.call(tareas.querySelectorAll('a'), function (a) {
+                var nombre = a.getAttribute('data-original-title') || a.getAttribute('title') || '';
+                var sigla = a.querySelector('.hidden-xs');
+                if (window.jQuery) { try { window.jQuery(a).tooltip('destroy'); } catch (e) { /* sin tooltip */ } }
+                a.removeAttribute('data-tooltip');
+                a.removeAttribute('data-toggle-tooltip');
+                if (sigla && nombre) { sigla.textContent = nombre; }
+                if (nombre) { a.setAttribute('aria-label', nombre); a.removeAttribute('title'); }
+            });
+            if (franja.nextElementSibling !== tareas) { franja.insertAdjacentElement('afterend', tareas); }
         }
     }
     armarFranja();
