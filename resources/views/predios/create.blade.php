@@ -411,10 +411,10 @@
                                                                 <li><a id="btn_cartera" href="#">Reporte de cartera</a></li>
                                                             </ul>
                                                             <p class="text-muted batch_message" style="text-align: justify;{{ !$batchs ? print('display: none;') : ''}}">
-                                                                <code style="width: 100%">
+                                                                <span class="alert alert-warning" style="display: block;">
                                                                     Se ha detectado un proceso de c&aacute;lculo predial batch en curso.<br />
                                                                     Se recomienda <b>no realizar</b> acciones adicionales hasta que el proceso en ejecuci&oacute;n haya finalizado.
-                                                                </code><br />
+                                                                </span>
                                                                 <small><b>Presione la tecla</small> <mark>F5</mark> <small>para actualizar los conteos.</b></small>
                                                             </p>
                                                             <div class="row batch_message" style="text-align: justify;{{ !$batchs ? print('display: none;') : ''}}">

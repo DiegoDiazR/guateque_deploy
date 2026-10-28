@@ -788,6 +788,8 @@ body.paipa .acceso-texto small { font-size: 12.5px; color: var(--tenue); line-he
 /* Barra de botones de tarea: dentro del ancho del contenido (la franja ya da el margen lateral) y con aire hasta la tarjeta */
 .barra-tareas { max-width: none; padding: 0; margin: 0 0 18px; gap: 8px 10px; }
 .barra-tareas li { margin: 0; }
+/* Antes de que paipa.js la lleve debajo de la franja la barra no se muestra (evita un salto de diseño al cargar) */
+.pagina-paipa > .barra-tareas { display: none; }
 /* Sin predio elegido todos los botones están ocultos: la barra tampoco ocupa lugar */
 .barra-tareas:not(:has(> li:not([style*="display: none"]))) { display: none; }
 
@@ -815,7 +817,7 @@ body.paipa span.span_predio {
 /* Código del predio: dígitos claros, sin letra gigante ni espaciado exagerado (el placeholder va normal) */
 body.paipa .campo-codigo-predio { height: 48px; font: 600 19px/1.2 var(--sans); letter-spacing: .1em; font-variant-numeric: tabular-nums; }
 body.paipa .campo-codigo-predio::placeholder { font-size: 14.5px; font-weight: 400; letter-spacing: 0; }
-@media (max-width: 575px) { body.paipa .campo-codigo-predio { font-size: 17px; letter-spacing: .05em; } }
+@media (max-width: 575px) { body.paipa .campo-codigo-predio { font-size: 15.5px; letter-spacing: .03em; } }
 
 /* Casillas con su estado SÍ / NO (¿Aplica ley 1995?, ¿Exento impuesto?, ...): casilla y texto alineados, estado como etiqueta */
 body.paipa input[type="checkbox"], body.paipa input[type="radio"] { width: 17px; height: 17px; vertical-align: -3px; cursor: pointer; }
@@ -893,6 +895,14 @@ body.paipa .modal-header .text-danger, body.paipa .modal-header .text-info, body
 }
 .blockUI.blockMsg::before { content: ""; display: block; width: 28px; height: 28px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid var(--suave-fuerte); border-top-color: var(--primario); animation: girar .8s linear infinite; }
 
+/* Tablas dentro de modales: los valores ("$ 7.379.000,00") no se parten en dos líneas; en pantallas angostas la tabla se desplaza dentro de su caja */
+body.paipa .modal-body table.dataTable tbody td { white-space: nowrap; }
+
+/* Iconos sueltos con el color puesto en la vista (PDF en rojo puro, impresora gris o verde): colores del sistema */
+body.paipa a[style*="color: red"], body.paipa a[style*="color: red"] i { color: var(--pendiente) !important; }
+body.paipa i.fa-print[style*="float: right"] { color: var(--tenue) !important; font-size: 20px; padding: 6px; border-radius: 8px; }
+body.paipa i.fa-print[style*="float: right"]:hover { color: var(--primario-oscuro) !important; background: var(--suave); }
+
 /* Contraste: texto oscuro sobre el dorado (el blanco sobre dorado no llega a 3:1) */
 body.paipa .btn-warning, body.paipa .btn-warning.disabled, body.paipa .btn-warning:hover, body.paipa .btn-warning:focus, body.paipa .btn-warning:active,
 body.paipa .panel-warning > .panel-heading { color: var(--tinta); }
@@ -925,4 +935,25 @@ body.pagina-error .error-tarjeta h1 { margin: 18px 0 8px; font: 700 clamp(22px, 
     body.paipa { background: #fff; }
     .pagina-paipa > .container-fluid > .row.bg-title { box-shadow: none; clip-path: none; background: none; color: #000; }
     .bg-title h4, .bg-title .page-title { color: #000 !important; }
+
+    /* Sin colores de fondo (el navegador no los imprime por omisión): los textos blancos sobre verde desaparecerían,
+       así que encabezados de tablas, paneles y cabeceras pasan a texto oscuro con línea, y los controles de pantalla se ocultan. */
+    body.paipa .bg-title .breadcrumb > li { background: none; color: #000; border: 1px solid #000; }
+    body.paipa .white-box, body.paipa .well, body.paipa .panel, body.paipa .modal-content { box-shadow: none !important; border-color: #999 !important; }
+    body.paipa .panel .panel-heading, body.paipa .panel-heading, body.paipa .modal-header,
+    body.paipa .table > thead > tr > th, body.paipa table.dataTable thead th, body.paipa table.dataTable thead td {
+        background: #fff !important; color: #000 !important; border-bottom: 2px solid #000 !important; border-color: #666 !important;
+    }
+    body.paipa .modal-header .modal-title, body.paipa .modal-header [class*="text-"] { color: #000 !important; }
+    body.paipa .table > tbody > tr > td { color: #000; }
+    body.paipa table.dataTable thead .sorting::after, body.paipa table.dataTable thead .sorting_asc::after, body.paipa table.dataTable thead .sorting_desc::after { display: none; }
+    body.paipa .sttabs > nav, body.paipa .form-actions, body.paipa :not(.bootstrap-select) > .btn, body.paipa .dataTables_filter, body.paipa .dataTables_length,
+    body.paipa .dataTables_paginate, body.paipa .pagination, body.paipa .tooltip, body.paipa .jq-toast-wrap, .sweet-overlay, .blockUI { display: none !important; }
+    body.paipa tr, body.paipa .span_predio { break-inside: avoid; }
+    /* Validación del PAZ Y SALVO (la página pública tiene botón Imprimir) */
+    .status-header { background: none !important; color: #000 !important; border-bottom: 2px solid #000; }
+    .validation-card .status-header h2, .validation-card .status-header p { color: #000 !important; }
+    .municipality-footer { background: none !important; color: #000 !important; border-top: 1px solid #000; }
+    .validation-card { box-shadow: none !important; border-color: #999 !important; }
+    .validation-card .btn { display: none !important; }
 }

@@ -294,7 +294,7 @@
                                                         </div>
                                                         <div class="col-lg-6 col-md-4 col-sm-12 col-xs-12 search_factura" style="display: none;">
                                                             <div class="form-group">
-                                                                <code><b>Atenci&oacute;n!</b></code><br /><code>La edici&oacute;n de informaci&oacute;n solo es permitida para pagos que hayan sido cargados manualmente.</code>
+                                                                <div class="alert alert-warning"><strong>Atenci&oacute;n!</strong> La edici&oacute;n de informaci&oacute;n solo es permitida para pagos que hayan sido cargados manualmente.</div>
                                                             </div>
                                                         </div>
                                                     </div>
