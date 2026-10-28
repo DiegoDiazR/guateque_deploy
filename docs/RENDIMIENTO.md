@@ -93,7 +93,11 @@ Las páginas HTML en sí cuestan poco en el servidor (5 a 70 ms por pantalla); l
   ejecuta dos veces. Respuesta idéntica (md5) en 16 predios de prueba (con varias facturas, con facturas de 34 años, sin deuda).
 * `PrediosController::autocomplete`: se quitó la tabla derivada de propietarios (join directo) y el producto con `predios_pagos` (se usa un conjunto `DISTINCT id_predio`).
   Respuesta idéntica en 16 términos de búsqueda y en la comparación SQL `EXCEPT` en ambos sentidos; funciona igual con o sin los índices propuestos.
-* `ResolucionesIgacController`: el nombre de la vista no coincidía en mayúsculas con la carpeta (`resolucionesigac` vs `ResolucionesIgac`); fallaba en Linux, en IIS/Windows no se notaba.
+* `ResolucionesIgacController` (y su vista `ResolucionesIgac/create.blade.php`):
+  * El nombre de la vista no coincidía en mayúsculas con la carpeta (`resolucionesigac` vs `ResolucionesIgac`); fallaba en Linux, en IIS/Windows no se notaba.
+  * La lista ya no vuelca toda la tabla en el HTML: se pagina en el servidor (25 por página, la más reciente primero) y trae un buscador (año, resolución, código, código anterior, tipo y nombre). Antes eran 87.810 filas en la copia de Guateque. Ya no se usa DataTables en esa pantalla.
+  * Si la tabla `resoluciones_igac` del municipio no tiene las columnas que la pantalla lista y guarda (`Schema::hasColumns`), se muestra un aviso en vez del error `Undefined property: stdClass::$ano`. La copia local de Guateque tiene la tabla con el diseño del archivo plano del IGAC, por eso allí se ve el aviso.
+  * Crear y editar siguen igual (probado con una tabla de prueba): vuelven a la misma página y búsqueda.
 
 ## 4. Propuestas NO aplicadas (decide Diego)
 
@@ -106,8 +110,8 @@ Probar primero en una copia, crear fuera de horario y con respaldo; el script tr
 * **Seguridad (urgente, no es de rendimiento)**: `GET /autocomplete`, `/autocomplete_check`, `/test-db` y varias rutas de exportación (`/export-cartera`,
   `/export-excel-recaudo-car/...`, `/export-pagos/...`) **responden sin iniciar sesión**, y `autocomplete*` arma el SQL concatenando lo que escribe el usuario (inyección SQL;
   `?q=x'` devuelve el SQL en el error). Conviene exigir sesión y usar parámetros.
-* `registro_resolucion_igac` carga **toda** la tabla `resoluciones_igac` en el HTML (`DB::table('resoluciones_igac')->get()`); en Guateque son 87.810 filas (2,4 s solo de SQL).
-  Si la de Paipa es parecida, esa pantalla se vuelve inusable. Solución: paginar en el servidor (cambia la interfaz).
+* `registro_resolucion_igac` cargaba **toda** la tabla `resoluciones_igac` en el HTML (87.810 filas en Guateque, 2,4 s solo de SQL): **resuelto** con paginación en el servidor y buscador (sección 3).
+  Hallazgos de esa pantalla que no se tocaron: el formulario de **actualizar no lleva `@csrf`** (el botón Actualizar responde 419 «La sesión caducó»; el de Crear y el de borrar sí lo llevan) y `update()` solo guarda la columna `resolucion`, no los demás campos que muestra el formulario.
 * `list/pagos_fecha` envía todos los pagos del rango como JSON y el navegador los pagina (un año de pagos: 2,5 MB). Paginación en servidor cambiaría la interfaz.
 * `autocomplete_check` junta con `STRING_AGG` (sin `ORDER BY`) el propietario y una fila vacía " - ": el orden de esas dos cadenas depende del plan de ejecución. Se
   dejó la consulta como estaba para no alterarlo (reescribirla la hacía ~2,5 veces más rápida pero cambiaba ese orden en 236 filas).

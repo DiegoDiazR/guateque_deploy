@@ -33,6 +33,16 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="white-box">
+                @if(!$tabla_compatible)
+                <div class="estado-aviso" role="status">
+                    <span class="estado-aviso-icono"><i class="fa fa-info"></i></span>
+                    <div>
+                        <h3>Resoluciones IGAC no est&aacute; disponible</h3>
+                        <p>La informaci&oacute;n de resoluciones IGAC de este municipio est&aacute; guardada con un formato distinto al que usa esta pantalla, por lo que no se puede consultar ni registrar desde aqu&iacute;.</p>
+                        <p>Si necesita esta opci&oacute;n, solicite su habilitaci&oacute;n al administrador del sistema.</p>
+                    </div>
+                </div>
+                @else
                 <section>
                     <div class="sttabs tabs-style-bar">
                         <nav>
@@ -190,7 +200,21 @@
                                                     @endif
                                                 </div>
                                                 <h2>Lista de resoluciones Igac</h2>
-                                                <table id="myTable" class="table table-hover table-striped table-bordered">
+                                                <form method="get" action="{{ url()->current() }}" class="form-inline m-b-15" role="search">
+                                                    <input type="hidden" name="page" value="1">
+                                                    <div class="form-group">
+                                                        <input type="text" name="q" value="{{ $busqueda }}" class="form-control" autocomplete="off" maxlength="60" placeholder="Buscar a&ntilde;o, resoluci&oacute;n, c&oacute;digo o nombre" style="width: 340px; max-width: 100%;">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-info"><i class="fa fa-search"></i> Buscar</button>
+                                                    @if($busqueda !== '')
+                                                        <a href="{{ url()->current() }}?page=1" class="btn btn-default"><i class="fa fa-times"></i> Limpiar</a>
+                                                    @endif
+                                                </form>
+                                                @if($resoluciones_igac->total() === 0)
+                                                    <p class="text-muted m-t-10">{!! $busqueda !== '' ? 'Ninguna resoluci&oacute;n coincide con la b&uacute;squeda.' : 'No hay informaci&oacute;n para mostrar.' !!}</p>
+                                                @endif
+                                                <div class="table-responsive"{!! $resoluciones_igac->total() === 0 ? ' style="display: none;"' : '' !!}>
+                                                <table id="tabla-igac" class="table table-hover table-striped table-bordered">
                                                     <thead>
                                                         <tr>
                                                             <th class="cell_center">A&ntilde;o</th>
@@ -231,16 +255,16 @@
                                                                 </td>
                                                             </tr>
                                                             @endforeach
-                                                        {{-- @else
-                                                        <tr>
-                                                            <td colspan="7">No hay informaci&oacute;n para mostrar</td>
-                                                        </tr> --}}
                                                         @endif
                                                     </tbody>
                                                 </table>
-                                                {{-- <div class="pagination-blobk">
+                                                </div>
+                                                @if($resoluciones_igac->total() > 0)
+                                                    <p class="text-muted m-t-10">Mostrando {{ number_format($resoluciones_igac->firstItem(), 0, ',', '.') }} a {{ number_format($resoluciones_igac->lastItem(), 0, ',', '.') }} de {{ number_format($resoluciones_igac->total(), 0, ',', '.') }} resoluciones</p>
+                                                @endif
+                                                <div class="pagination-blobk clearfix">
                                                     {{ $resoluciones_igac->links('layouts.paginationlinks') }}
-                                                </div> --}}
+                                                </div>
                                                 <form id="form_delete" action="{{ route('resoluciones_igac.delete_resolucion_igac') }}" method="post" style="display: none;">
                                                     @csrf
                                                     <input type="hidden" id="input_delete" name="input_delete">
@@ -362,6 +386,7 @@
                         </div>
                     </div>
                 </section>
+                @endif
             </div>
         </div>
     </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Http\Requests\ResolucionesIgacCreateFormRequest;
 use App\Http\Requests\ResolucionesIgacUpdateFormRequest;
 use App\Models\ResolucionIgac;
@@ -11,6 +12,12 @@ use App\Models\Opcion;
 
 class ResolucionesIgacController extends Controller
 {
+    /** Columnas que la pantalla de resoluciones IGAC lista y guarda. */
+    const COLUMNAS_PANTALLA = ['id', 'ano', 'resolucion', 'fecha', 'consecutivo', 'codigo', 'codigoanterior',
+                               'tipo', 'tiporegistro', 'numeroorden', 'avaluoigac', 'area', 'nombre'];
+
+    /** Filas por pagina en la lista. */
+    const POR_PAGINA = 25;
 
     /**
      * Display a listing of the resource.
@@ -32,10 +39,32 @@ class ResolucionesIgacController extends Controller
             return redirect('/');
         }
         $opcion = Opcion::where('id','=', base64_decode($id))->first();
-        $resoluciones_igac = DB::table('resoluciones_igac')->get(); //paginate(5);
+
+        // La pantalla solo sirve si la tabla del municipio tiene las columnas que esta pantalla guarda y muestra
+        // (hay bases donde resoluciones_igac es el archivo plano del IGAC, con otras columnas). Si no es asi se
+        // muestra un aviso en vez de dejar caer la pagina.
+        $tabla_compatible = Schema::hasTable('resoluciones_igac')
+            && Schema::hasColumns('resoluciones_igac', self::COLUMNAS_PANTALLA);
+
+        // La tabla puede tener decenas de miles de filas: se muestra por paginas y se busca en el servidor.
+        $busqueda = trim((string) $request->query('q', ''));
+        $resoluciones_igac = null;
+        if ($tabla_compatible) {
+            $consulta = DB::table('resoluciones_igac');
+            if ($busqueda !== '') {
+                $consulta->where(function ($donde) use ($busqueda) {
+                    foreach (['ano', 'resolucion', 'codigo', 'codigoanterior', 'tipo', 'nombre'] as $columna) {
+                        $donde->orWhere($columna, 'like', '%' . $busqueda . '%');
+                    }
+                });
+            }
+            $resoluciones_igac = $consulta->orderBy('id', 'desc')
+                                          ->paginate(self::POR_PAGINA)
+                                          ->appends($busqueda !== '' ? ['q' => $busqueda] : []);
+        }
 
         $tab_current = 'li-section-bar-1';
-        if ($request->has('page')) {
+        if ($request->has('page') || $busqueda !== '') {
             $tab_current = 'li-section-bar-2';
         }
 
@@ -43,6 +72,8 @@ class ResolucionesIgacController extends Controller
 
         return view('ResolucionesIgac.create', ['opcion' => $opcion,
                                              'resoluciones_igac' => $resoluciones_igac,
+                                             'tabla_compatible' => $tabla_compatible,
+                                             'busqueda' => $busqueda,
                                              'tab_current' => $tab_current]);
     }
 

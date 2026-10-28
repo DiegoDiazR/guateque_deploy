@@ -747,6 +747,14 @@ body.pagina-entrada .entrada-texto h1 { margin: 0 0 16px; font: 700 clamp(38px, 
 .aviso svg { width: 19px; height: 19px; margin-top: 1px; flex: none; }
 .aviso-error { background: var(--pendiente-fondo); color: #7d151b; }
 .aviso-exito { background: var(--ok-fondo); color: #0f5530; }
+
+/* Aviso de pantalla que no se puede mostrar (por ejemplo, una tabla con otro formato en ese municipio) */
+.estado-aviso { display: flex; align-items: flex-start; gap: 16px; padding: clamp(18px, 2.4vw, 28px); background: var(--suave); border: 1px solid var(--linea); border-radius: 14px; }
+.estado-aviso-icono { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 1.5px solid var(--linea); color: var(--primario-oscuro); font-size: 20px; }
+.estado-aviso h3 { margin: 2px 0 8px; font-size: 19px; color: var(--primario-oscuro); }
+.estado-aviso p { margin: 0 0 6px; max-width: 62ch; line-height: 1.55; color: var(--tinta); }
+.estado-aviso p:last-child { margin-bottom: 0; }
+@media (max-width: 575px) { .estado-aviso { flex-direction: column; gap: 10px; } }
 .formulario-pie { margin: 2px 0 0; text-align: center; font-size: 14px; color: var(--tenue); }
 .formulario-pie svg { width: 16px; height: 16px; vertical-align: -3px; margin-right: 4px; color: var(--primario-oscuro); }
 
