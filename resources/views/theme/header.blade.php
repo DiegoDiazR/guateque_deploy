@@ -1,4 +1,4 @@
-{{-- Encabezado del sistema: identidad del municipio (config/municipio.php), cuenta del usuario y menú horizontal. --}}
+{{-- Encabezado del sistema: identidad del municipio (App\Support\Municipio), cuenta del usuario y menú horizontal. --}}
 @php
     $mpNombres = (string) Session::get('username');
     $mpApellidos = (string) Session::get('userlastname');
@@ -8,13 +8,7 @@
 @endphp
 <header class="cabecera">
     <div class="contenedor cabecera-fila">
-        <a class="marca" href="/profile" aria-label="{{ config('municipio.alcaldia') }}, inicio">
-            <img class="marca-logo" src="{{ asset(config('municipio.logo')) }}" alt="{{ config('municipio.alcaldia') }}">
-            <span class="marca-texto">
-                <strong>{{ config('municipio.secretaria') }}</strong>
-                <span>{{ config('municipio.sistema') }}</span>
-            </span>
-        </a>
+        @include('theme.marca', ['marcaEnlace' => '/profile'])
         <div class="cabecera-derecha">
             <div class="cuenta paipa-desplegable">
                 <button type="button" class="cuenta-chip" data-paipa-toggle aria-haspopup="true" aria-expanded="false" title="Mi cuenta">

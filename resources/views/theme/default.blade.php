@@ -9,13 +9,13 @@
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta http-equiv="refresh" content="{{ intval(config('session.lifetime')) * 60 }};url=/">
-    <link rel="icon" type="image/png" href="{{ asset(config('municipio.escudo')) }}">
-    <title>{{ config('municipio.sistema') }} | {{ config('municipio.alcaldia') }}</title>
+    @if ($mpEscudo = \App\Support\Municipio::escudoUrl())<link rel="icon" type="image/png" href="{{ $mpEscudo }}">@endif
+    <title>{{ \App\Support\Municipio::perfil()['sistema'] }} | {{ \App\Support\Municipio::nombre() }}</title>
     {{-- CSS comunes en un solo archivo (lista en config/theme_assets.php; se arma con php scripts/build_assets.php).
          Los plugins de una sola pantalla se agregan con @push('styles') en esa vista. --}}
     @include('theme.assets_css')
 
-    {{-- Hoja de estilos del sistema (va al final para ganar sobre Bootstrap/Pixel Admin) y colores del municipio (config/municipio.php) --}}
+    {{-- Hoja de estilos del sistema (va al final para ganar sobre Bootstrap/Pixel Admin) y colores del municipio (App\Support\Municipio) --}}
     <link href="{!! asset('theme/css/paipa.css') !!}?v={{ @filemtime(public_path('theme/css/paipa.css')) ?: 1 }}" rel="stylesheet">
     @include('theme.identidad')
 </head>

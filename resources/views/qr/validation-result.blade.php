@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Validación de certificado PAZ Y SALVO">
     <meta name="author" content="ERPSoft Predial">
-    <link rel="icon" type="image/png" href="{{ asset(config('municipio.escudo')) }}">
-    <title>{{ $title }} - Validación PAZ Y SALVO</title>
+    @if ($mpEscudo = \App\Support\Municipio::escudoUrl())<link rel="icon" type="image/png" href="{{ $mpEscudo }}">@endif
+    <title>{{ $title }} - Validación PAZ Y SALVO | {{ \App\Support\Municipio::nombre() }}</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="{!! asset('theme/bootstrap/dist/css/bootstrap.min.css') !!}" rel="stylesheet">
@@ -19,7 +19,7 @@
     <link href="{!! asset('theme/css/colors/green.css') !!}" id="theme" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="{!! asset('theme/css/customcss/style.css') !!}" rel="stylesheet">
-    <!-- Estilos del sistema y colores del municipio (config/municipio.php) -->
+    <!-- Estilos del sistema y colores del municipio (App\Support\Municipio) -->
     <link href="{!! asset('theme/css/paipa.css') !!}?v={{ @filemtime(public_path('theme/css/paipa.css')) ?: 1 }}" rel="stylesheet">
     @include('theme.identidad')
 
@@ -57,13 +57,7 @@
 
     <header class="cabecera">
         <div class="contenedor cabecera-fila">
-            <span class="marca">
-                <img class="marca-logo" src="{{ asset(config('municipio.logo')) }}" alt="{{ config('municipio.alcaldia') }}">
-                <span class="marca-texto">
-                    <strong>{{ config('municipio.secretaria') }}</strong>
-                    <span>Validación de PAZ Y SALVO</span>
-                </span>
-            </span>
+            @include('theme.marca', ['marcaSubtitulo' => 'Validación de PAZ Y SALVO'])
         </div>
     </header>
 
@@ -201,9 +195,20 @@
                 </div>
             </div>
 
+            @php
+                $mpPerfil = \App\Support\Municipio::perfil();
+                $mpPieTitulo = !empty($mpPerfil['validacion_titulo']) ? $mpPerfil['validacion_titulo'] : \App\Support\Municipio::nombre();
+                $mpPieContacto = array_filter([
+                    !empty($mpPerfil['validacion_correo']) ? $mpPerfil['validacion_correo'] : null,
+                    \App\Support\Municipio::direccion(),
+                ]);
+                if (!$mpPieContacto) {
+                    $mpPieContacto = array_filter([\App\Support\Municipio::ubicacion()]);
+                }
+            @endphp
             <div class="municipality-footer">
-                <strong>TESORERÍA MUNICIPAL DE PAIPA</strong><br>
-                <small>tesoreria@paipa-boyaca.gov.co | Carrera 22 # 25 - 14</small><br>
+                <strong>{{ mb_strtoupper($mpPieTitulo) }}</strong><br>
+                @if ($mpPieContacto)<small>{{ implode(' | ', $mpPieContacto) }}</small><br>@endif
                 <small>Sistema de Validación de PAZ Y SALVO</small>
             </div>
         </div>

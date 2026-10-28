@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="white-box bienvenida">
-                <p class="ceja ceja-oscura">{{ config('municipio.secretaria') }} &middot; {{ config('municipio.ciudad') }}</p>
+                <p class="ceja ceja-oscura">{{ \App\Support\Municipio::ceja() }}</p>
                 <h2>Bienvenido(a), {{ mb_convert_case(mb_strtolower((string) Session::get('username')), MB_CASE_TITLE) }}</h2>
                 <p class="texto-tenue">Elija una opci&oacute;n del men&uacute; o use los accesos directos de esta p&aacute;gina.</p>
             </div>

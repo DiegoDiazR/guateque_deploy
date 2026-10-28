@@ -1,4 +1,4 @@
-{{-- Colores del municipio (config/municipio.php) como variables CSS. Lo usan el layout y el login. --}}
+{{-- Colores del municipio (App\Support\Municipio::perfil(), de config/municipio.php) como variables CSS. Lo usan el layout, el login y la validación del QR. --}}
 @php
     $mpHex = function ($valor, $porDefecto) {
         return preg_match('/^#[0-9a-fA-F]{6}$/', (string) $valor) ? strtolower($valor) : $porDefecto;
@@ -15,11 +15,13 @@
         }
         return sprintf('#%02x%02x%02x', $c[0], $c[1], $c[2]);
     };
-    $mpPrimario = $mpHex(config('municipio.color'), '#1fa49d');
-    $mpOscuro = $mpHex(config('municipio.color_oscuro'), '#17756f');
-    $mpOro = $mpHex(config('municipio.color_acento'), '#c99a2e');
+    $mpPerfil = \App\Support\Municipio::perfil();
+    $mpPrimario = $mpHex($mpPerfil['color'], '#1fa49d');
+    $mpOscuro = $mpHex($mpPerfil['color_oscuro'], '#17756f');
+    $mpOro = $mpHex($mpPerfil['color_acento'], '#c99a2e');
 @endphp
 <meta name="theme-color" content="{{ $mpOscuro }}">
+<link href="{!! asset('theme/css/municipio.css') !!}?v={{ @filemtime(public_path('theme/css/municipio.css')) ?: 1 }}" rel="stylesheet">
 <style>
     :root {
         --primario: {{ $mpPrimario }};

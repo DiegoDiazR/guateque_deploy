@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
 <meta name="author" content="">
-<link rel="icon" type="image/png" href="{{ asset(config('municipio.escudo')) }}">
-<title>Iniciar sesi&oacute;n | {{ config('municipio.alcaldia') }}</title>
+@if ($mpEscudo = \App\Support\Municipio::escudoUrl())<link rel="icon" type="image/png" href="{{ $mpEscudo }}">@endif
+<title>Iniciar sesi&oacute;n | {{ \App\Support\Municipio::nombre() }}</title>
 <!-- Bootstrap Core CSS -->
 <link href="{!! asset('theme/bootstrap/dist/css/bootstrap.min.css') !!}" rel="stylesheet">
-{{-- Estilos del sistema (login, encabezado y pie) y colores del municipio (config/municipio.php) --}}
+{{-- Estilos del sistema (login, encabezado y pie) y colores del municipio (App\Support\Municipio) --}}
 <link href="{!! asset('theme/css/paipa.css') !!}?v={{ @filemtime(public_path('theme/css/paipa.css')) ?: 1 }}" rel="stylesheet">
 @include('theme.identidad')
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -23,21 +23,20 @@
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="cabecera">
     <div class="contenedor cabecera-fila">
-        <a class="marca" href="/" aria-label="{{ config('municipio.alcaldia') }}, inicio">
-            <img class="marca-logo" src="{{ asset(config('municipio.logo')) }}" alt="{{ config('municipio.alcaldia') }}">
-            <span class="marca-texto">
-                <strong>{{ config('municipio.secretaria') }}</strong>
-                <span>{{ config('municipio.sistema') }}</span>
-            </span>
-        </a>
+        @include('theme.marca', ['marcaEnlace' => '/'])
     </div>
 </header>
 <main id="contenido" tabindex="-1">
 <section class="entrada">
-    <div class="entrada-foto" aria-hidden="true" style="background-image: url('{{ asset(config('municipio.fondo')) }}');"></div>
+    @php $mpFondo = \App\Support\Municipio::fondoUrl(); $mpMarcaAgua = $mpFondo ? null : \App\Support\Municipio::logoUrl(); @endphp
+    @if ($mpFondo)
+    <div class="entrada-foto" aria-hidden="true" style="background-image: url('{{ $mpFondo }}');"></div>
+    @elseif ($mpMarcaAgua)
+    <div class="entrada-foto entrada-marca-agua" aria-hidden="true" style="background-image: url('{{ $mpMarcaAgua }}');"></div>
+    @endif
     <div class="contenedor entrada-fila">
         <div class="entrada-texto">
-            <p class="ceja">{{ config('municipio.secretaria') }} &middot; {{ config('municipio.ciudad') }}</p>
+            <p class="ceja">{{ \App\Support\Municipio::ceja() }}</p>
             <h1>Impuesto Predial <em>Unificado</em></h1>
             <p class="bajada">Sistema de gesti&oacute;n para los funcionarios de la Alcald&iacute;a: predios, pagos, acuerdos de pago, tarifas e informes de recaudo.</p>
             <ul class="beneficios">
