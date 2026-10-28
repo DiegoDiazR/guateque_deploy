@@ -143,7 +143,7 @@
                                                                             <div class="bar one"></div >
                                                                             <div class="porciento one">0%</div >
                                                                         </div>
-                                                                        <span id="error_fileupload" class="text-danger" style="display: none;">Max file size 10 Mb</span>
+                                                                        <span id="error_fileupload" class="text-danger" style="display: none;">El archivo supera el tama&ntilde;o m&aacute;ximo de 10 MB.</span>
                                                                         <span id="current_filename" class="text-inverse" style="display: block; padding-top: 15px;"></span>
                                                                     </div>
                                                                 </div>

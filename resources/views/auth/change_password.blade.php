@@ -81,10 +81,10 @@
                     <li>M&iacute;nimo 6 caract&eacute;res</li>
                     <li>Al menos una letra may&uacute;scula</li>
                     <li>Al menos un n&uacute;mero</li>
-                    <li>Al menos un simbolo ~ ! @ - # $</li>
+                    <li>Al menos un s&iacute;mbolo ~ ! @ - # $</li>
                 </ul>
                 <br />
-                <button id="btn_generar_password" type="button" class="btn btn-info">Generar password aleatoriamente</button>
+                <button id="btn_generar_password" type="button" class="btn btn-info">Generar contrase&ntilde;a aleatoria</button>
                 <div id="div_random_text" style="font-size: 20pt; font-weight: bold; padding-top: 10px;"></div>
             </div>
         </div>
