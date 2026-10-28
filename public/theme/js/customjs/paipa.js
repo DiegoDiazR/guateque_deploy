@@ -121,4 +121,22 @@
         }
     }
     armarFranja();
+
+    // ---------- Estados SÍ / NO junto a las casillas ----------
+    // Los textos "NO" que cambian a "SI" al marcar una casilla (¿Aplica ley 1995?, ¿Exento impuesto?, ...)
+    // se muestran como etiqueta y con tilde ("SÍ"). Solo cambia la presentación: nada del sistema lee ese texto.
+    function marcarEstado(el) {
+        var t = (el.textContent || '').trim().toUpperCase();
+        if (t === 'SI') { el.textContent = 'SÍ'; return; } // el cambio vuelve a pasar por aquí
+        if (t === 'SÍ' || t === 'NO') { el.setAttribute('data-valor', t); }
+    }
+    $$('span.text-muted[id^="span_"]').forEach(function (el) {
+        var t = (el.textContent || '').trim().toUpperCase();
+        if (t !== 'SI' && t !== 'NO' && t !== 'SÍ') { return; }
+        el.classList.add('estado-sn');
+        marcarEstado(el);
+        if (window.MutationObserver) {
+            new MutationObserver(function () { marcarEstado(el); }).observe(el, { childList: true, characterData: true, subtree: true });
+        }
+    });
 })();

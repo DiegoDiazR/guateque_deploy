@@ -271,7 +271,6 @@ body.paipa .form-control:focus-visible, body.paipa .btn:focus-visible { outline-
 @media (max-width: 575px) {
     .barra-tareas li > a { padding: 8px 13px; font-size: 13px; }
 }
-}
 
 /* ===================== Contenido ===================== */
 body.paipa .row { margin-left: -12px; margin-right: -12px; }
@@ -314,9 +313,9 @@ body.paipa .form-control {
     transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 body.paipa textarea.form-control { height: auto; min-height: 84px; border: 1.5px solid var(--linea-fuerte); }
-body.paipa .form-control:focus { border-color: var(--primario-oscuro); background: #fff; box-shadow: 0 0 0 4px rgba(var(--primario-rgb), .18); }
+body.paipa .form-control:focus { border-color: var(--primario-oscuro); background-color: #fff; box-shadow: 0 0 0 4px rgba(var(--primario-rgb), .18); }
 body.paipa .form-control::placeholder { color: #8a9a96; }
-body.paipa .form-control[disabled], body.paipa .form-control[readonly], body.paipa fieldset[disabled] .form-control { background: #eef3f1; opacity: 1; color: var(--tenue); }
+body.paipa .form-control[disabled], body.paipa .form-control[readonly], body.paipa fieldset[disabled] .form-control { background-color: #eef3f1; opacity: 1; color: var(--tenue); }
 body.paipa .form-control-static { padding-top: 8px; min-height: var(--alto-campo); font-weight: 600; }
 body.paipa .input-sm { height: 32px; padding: 4px 10px; border-radius: 8px; font-size: 13px; }
 body.paipa .input-lg { height: 48px; border-radius: 12px; font-size: 16px; }
@@ -431,7 +430,10 @@ body.paipa .btn-block { display: flex; width: 100%; }
 body.paipa .btn-xs { min-height: 28px; padding: 3px 10px; border-radius: 8px; font-size: 12px; }
 body.paipa .btn-sm { min-height: 32px; padding: 4px 12px; border-radius: 9px; font-size: 13px; }
 body.paipa .btn-lg { min-height: 48px; padding: 10px 24px; border-radius: 12px; font-size: 16px; }
-body.paipa .btn-circle { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
+body.paipa .btn.btn-circle { width: 38px; height: 38px; min-height: 0; padding: 0; border-radius: 50%; }
+body.paipa .btn.btn-circle.btn-sm { width: 32px; height: 32px; }
+body.paipa .btn.btn-circle.btn-xs { width: 26px; height: 26px; }
+body.paipa .btn.btn-circle.btn-lg { width: 48px; height: 48px; }
 body.paipa .btn-info, body.paipa .btn-primary, body.paipa .btn-info.disabled, body.paipa .btn-primary.disabled {
     background: var(--primario); border-color: var(--primario); color: #fff; box-shadow: 0 8px 18px -12px rgba(var(--profundo-rgb), .8);
 }
@@ -453,14 +455,14 @@ body.paipa .btn-link { color: var(--primario-oscuro); background: none; border-c
 body.paipa .btn-outline.btn-info, body.paipa .btn-info.btn-outline { background: #fff; color: var(--primario-oscuro); border-color: var(--primario-oscuro); box-shadow: none; }
 body.paipa .btn-info.btn-outline:hover { background: var(--suave); color: var(--primario-oscuro); }
 body.paipa .btn[disabled], body.paipa .btn.disabled, body.paipa fieldset[disabled] .btn { opacity: .55; cursor: not-allowed; box-shadow: none; transform: none; }
-body.paipa .btn-youtube { background: var(--pendiente); color: #fff; border-color: var(--pendiente); }
-body.paipa .btn-youtube:hover, body.paipa .btn-youtube:focus { background: #8f1c22; border-color: #8f1c22; color: #fff; }
-body.paipa .btn-instagram { background: var(--primario); color: #fff; border-color: var(--primario); }
-body.paipa .btn-instagram:hover, body.paipa .btn-instagram:focus { background: var(--primario-oscuro); border-color: var(--primario-oscuro); color: #fff; }
+body.paipa .btn-youtube { background: var(--pendiente) !important; color: #fff !important; border-color: var(--pendiente); }
+body.paipa .btn-youtube:hover, body.paipa .btn-youtube:focus { background: #8f1c22 !important; border-color: #8f1c22; color: #fff !important; }
+body.paipa .btn-instagram { background: var(--primario) !important; color: #fff !important; border-color: var(--primario); }
+body.paipa .btn-instagram:hover, body.paipa .btn-instagram:focus { background: var(--primario-oscuro) !important; border-color: var(--primario-oscuro); color: #fff !important; }
 body.paipa .btn-group:not(.bootstrap-select) > .btn, body.paipa .btn-group-vertical > .btn { border-radius: 0; }
 body.paipa .btn-group:not(.bootstrap-select) > .btn:first-child { border-radius: 10px 0 0 10px; }
-body.paipa .btn-group:not(.bootstrap-select) > .btn:last-child { border-radius: 0 10px 10px 0; }
-body.paipa .btn-group:not(.bootstrap-select) > .btn:only-child { border-radius: 10px; }
+body.paipa .btn-group:not(.bootstrap-select) > .btn:last-of-type { border-radius: 0 10px 10px 0; }
+body.paipa .btn-group:not(.bootstrap-select) > .btn:only-of-type { border-radius: 10px; }
 /* Botones dentro de tablas (editar, eliminar, ...): compactos para que quepan en una línea */
 body.paipa .table .btn { min-height: 32px; padding: 3px 11px; border-radius: 9px; font-size: 13px; }
 body.paipa .table td .btn + .btn { margin-left: 4px; }
@@ -657,7 +659,6 @@ body.paipa .breadcrumb { background: none; }
 .jq-toast-single.jq-icon-error::before { content: "\00D7"; background: var(--pendiente); font-family: var(--sans); font-size: 20px; }
 
 /* ===================== Detalles propios del sistema ===================== */
-body.paipa span.span_predio { color: var(--primario-oscuro); font-family: var(--mono); font-size: 150%; }
 body.paipa .acuerdo-available, body.paipa a.upload-resolucion-row { color: var(--primario) !important; }
 body.paipa table.dataTable tbody tr.odd, body.paipa .table-striped > tbody > tr:nth-of-type(odd) { background: #fafcfb; }
 body.paipa .acuerdo-no-permission { color: var(--tenue); }
@@ -779,6 +780,102 @@ body.paipa .acceso-texto small { font-size: 12.5px; color: var(--tenue); line-he
 .pie a:hover { color: #fff; text-decoration: underline; }
 .pie-legal { background: rgba(0, 0, 0, .22); font-size: 12.5px; color: rgba(255, 255, 255, .78); }
 .pie-legal-fila { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; padding-block: 12px; }
+
+/* =====================================================================
+   Revisión visual final: ajustes sobre Bootstrap 3 / Pixel Admin
+   ===================================================================== */
+
+/* Barra de botones de tarea: dentro del ancho del contenido (la franja ya da el margen lateral) y con aire hasta la tarjeta */
+.barra-tareas { max-width: none; padding: 0; margin: 0 0 18px; gap: 8px 10px; }
+.barra-tareas li { margin: 0; }
+
+/* Columnas dentro de un <form> que a su vez está en una columna (prescripciones, exenciones, cambio de tarifa): sin doble margen lateral */
+body.paipa [class*="col-"] > form:has(> [class*="col-"]) { margin-inline: -12px; }
+body.paipa [class*="col-"] > form:has(> [class*="col-"])::after { content: ""; display: table; clear: both; }
+body.paipa [class*="col-"] > form:has(> [class*="col-"]) > .result { padding-inline: 12px; }
+
+/* Textos de etiqueta siempre en la tipografía del sistema (dentro de un h2 heredaban la serif) */
+body.paipa label { font-family: var(--sans); }
+body.paipa label mark, body.paipa .control-label mark { padding: 2px 10px; border-radius: 999px; background: var(--suave); color: var(--primario-oscuro); font: 600 12.5px/1.4 var(--sans); }
+
+/* Datos de solo lectura del predio (Zona, Sector, ...): etiqueta pequeña y valor en una ficha como los campos bloqueados */
+body.paipa .labels_codigo_predio .control-label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--tenue); }
+body.paipa .labels_codigo_predio .form-group { margin-bottom: 14px; }
+body.paipa span.span_predio {
+    display: block; min-height: var(--alto-campo); padding: 8px 10px; background-color: #eef3f1; border: 1.5px solid var(--linea); border-radius: var(--radio-campo);
+    color: var(--tinta); font: 600 15px/1.45 var(--sans); font-variant-numeric: tabular-nums; letter-spacing: .04em; overflow-wrap: anywhere;
+}
+
+/* Código del predio: dígitos claros, sin letra gigante ni espaciado exagerado (el placeholder va normal) */
+body.paipa .campo-codigo-predio { height: 48px; font: 600 19px/1.2 var(--sans); letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+body.paipa .campo-codigo-predio::placeholder { font-size: 14.5px; font-weight: 400; letter-spacing: 0; }
+@media (max-width: 575px) { body.paipa .campo-codigo-predio { font-size: 17px; letter-spacing: .05em; } }
+
+/* Casillas con su estado SÍ / NO (¿Aplica ley 1995?, ¿Exento impuesto?, ...): casilla y texto alineados, estado como etiqueta */
+body.paipa input[type="checkbox"], body.paipa input[type="radio"] { width: 17px; height: 17px; vertical-align: -3px; cursor: pointer; }
+body.paipa .form-group:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 4px; }
+body.paipa .form-group > input[type="checkbox"] { margin: 0 8px 0 0; flex: none; }
+body.paipa .form-group > input[type="checkbox"] + .control-label { margin: 0; padding-left: 0 !important; cursor: pointer; }
+body.paipa [class*="col-"]:has(> .form-group > input[type="checkbox"]) { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+body.paipa span.estado-sn { display: inline-block; padding: 2px 10px !important; border-radius: 999px; background: #eceff0; color: #4d5759; font: 700 11.5px/1.5 var(--sans); letter-spacing: .06em; text-transform: uppercase; }
+body.paipa span.estado-sn[data-valor="SÍ"] { background: var(--ok-fondo); color: var(--ok); }
+
+/* bootstrap-select: ocupa todo el ancho de su columna (el botón se encogía al texto) */
+body.paipa .bootstrap-select.form-control > .dropdown-toggle { width: 100%; float: none; }
+body.paipa .bootstrap-select.form-control.disabled > .dropdown-toggle, body.paipa .bootstrap-select.form-control > .dropdown-toggle.disabled { background-color: #eef3f1; color: var(--tenue); }
+
+/* Listas desplegables nativas con la misma flecha que las demás */
+body.paipa select.form-control:not([multiple]):not([size]) {
+    -webkit-appearance: none; appearance: none; padding-right: 34px; background-repeat: no-repeat; background-position: right 12px center; background-size: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5l5 5 5-5' fill='none' stroke='%234b5f5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Foco visible y limpio en los campos: un solo anillo (borde + sombra), sin el contorno doble */
+body.paipa .form-control:focus-visible, body.paipa .select2-search__field:focus-visible, body.paipa .bs-searchbox .form-control:focus-visible,
+body.paipa .dataTables_filter input:focus-visible, body.paipa .select2-selection:focus-visible, .sweet-alert input:focus-visible, .sweet-alert textarea:focus-visible { outline: none !important; }
+body.paipa .select2-container--default.select2-container--focus .select2-selection--single { border-color: var(--primario-oscuro); box-shadow: 0 0 0 4px rgba(var(--primario-rgb), .18); }
+body.paipa .select2-container--default .select2-search--dropdown .select2-search__field:focus { border-color: var(--primario-oscuro); box-shadow: 0 0 0 3px rgba(var(--primario-rgb), .18); outline: none; }
+body.paipa .bootstrap-select .bs-searchbox .form-control:focus { border-color: var(--primario-oscuro); box-shadow: 0 0 0 3px rgba(var(--primario-rgb), .18); }
+.sweet-alert input:focus, .sweet-alert textarea:focus { border-color: var(--primario-oscuro) !important; box-shadow: 0 0 0 4px rgba(var(--primario-rgb), .18) !important; }
+
+/* select2 de selección múltiple: la X de cada etiqueta junto al texto y el cursor sin raya */
+body.paipa .select2-container--default .select2-selection--multiple .select2-selection__choice { display: inline-flex; align-items: center; margin-top: 5px; }
+body.paipa .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { position: static; float: none; margin: 0 6px 0 0; color: var(--tenue); }
+body.paipa .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field { height: 26px; margin-top: 6px; border: 0; box-shadow: none; background: transparent; }
+
+/* Dropdowns de grupos de botones abiertos: mismos colores del sistema (el tema viejo los ponía azules) */
+body.paipa .open > .dropdown-toggle.btn-info, body.paipa .open > .dropdown-toggle.btn-primary,
+body.paipa .btn-info.active, body.paipa .btn-primary.active { background: var(--primario-oscuro); border-color: var(--primario-oscuro); color: #fff; }
+body.paipa .open > .dropdown-toggle.btn-success { background: #0f5530; border-color: #0f5530; color: #fff; }
+body.paipa .open > .dropdown-toggle.btn-danger { background: #8f1c22; border-color: #8f1c22; color: #fff; }
+body.paipa .open > .dropdown-toggle.btn-warning { background: #a97f1f; border-color: #a97f1f; color: #fff; }
+body.paipa .open > .dropdown-toggle.btn-default, body.paipa .btn-default.active { background: var(--suave); border-color: var(--primario); color: var(--primario-oscuro); box-shadow: none; }
+
+/* Paneles desplegables (acordeón): el título es un enlace, que no quede blanco sobre fondo claro */
+body.paipa .panel-title { margin: 0; font: 600 15.5px/1.3 var(--sans); }
+body.paipa .panel-title > a, body.paipa .panel-heading .panel-title a { display: block; color: inherit; text-decoration: none; }
+body.paipa .panel-default > .panel-heading a, body.paipa .panel-default > .panel-heading .panel-title { color: var(--primario-oscuro); }
+
+/* Texto con formato: código, teclas, citas */
+body.paipa code { padding: 1px 6px; border-radius: 6px; background: var(--suave); color: var(--primario-oscuro); font-family: var(--mono); font-size: .9em; }
+body.paipa kbd { padding: 1px 6px; border-radius: 6px; background: var(--tinta); color: #fff; box-shadow: none; }
+body.paipa blockquote { margin: 0 0 14px; padding: 12px 18px; border-left: 4px solid var(--primario); border-radius: 0 12px 12px 0; background: var(--papel); font-size: 15px; }
+body.paipa .popover-title { font: 600 14px/1.3 var(--sans); }
+
+/* Iconos de acción dentro de las tablas de los modales (editar / eliminar): zona de clic cómoda y colores del sistema */
+body.paipa a.editAbono, body.paipa a.editPropietario, body.paipa a.deletePropietario, body.paipa a.editarPago {
+    display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0 !important; border-radius: 8px; color: var(--primario-oscuro); text-decoration: none;
+}
+body.paipa a.editAbono:hover, body.paipa a.editPropietario:hover, body.paipa a.editarPago:hover { background: var(--suave); }
+body.paipa a.deletePropietario { color: var(--pendiente) !important; }
+body.paipa a.deletePropietario:hover { background: var(--pendiente-fondo); }
+body.paipa a.editarPago .fa, body.paipa a.editarPago .text-info { color: var(--primario-oscuro); }
+
+/* Pestañas en pantallas angostas: se reparten el ancho y el texto baja de línea, en vez de apilarse una sobre otra */
+@media screen and (max-width: 58em) {
+    body.paipa .sttabs nav ul li { flex: 1 1 0; min-width: 0; }
+    body.paipa .tabs-style-bar nav ul li a, body.paipa .sttabs nav a { padding: 8px 6px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

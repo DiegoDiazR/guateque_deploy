@@ -100,7 +100,7 @@
                                                             {{-- <input type="text" style="font-size: 170%; letter-spacing: 5px; display: none;" id="codigo_predio" name="codigo_predio" class="form-control onlyNumbers" autocomplete="off" placeholder="Ingrese c&oacute;digo predio 15/25" value="{{ old('codigo_predio') }}" maxlength="25"> --}}
                                                             <div class="form-group">
                                                                 <label class="control-label">C&oacute;digo predio:</label>
-                                                                <input type="text" style="font-size: 170%; letter-spacing: 5px;" id="codigo_predio" name="codigo_predio" class="form-control onlyNumbers" autocomplete="off" placeholder="Ingrese c&oacute;digo predio 15/25" value="{{ old('codigo_predio') }}" maxlength="25">
+                                                                <input type="text" id="codigo_predio" name="codigo_predio" class="form-control campo-codigo-predio onlyNumbers" autocomplete="off" placeholder="Ingrese c&oacute;digo predio 15/25" value="{{ old('codigo_predio') }}" maxlength="25">
                                                                 <span class="text-danger">@error('codigo_predio') {{ $message }} @enderror</span>
                                                             </div>
                                                         </div>
@@ -314,7 +314,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_ley1995" name="ind_ley1995" value="{{ old('ind_ley1995') }}">
-                                                                        <label for="ind_ley1995_check" class="control-label" style="padding-left: 10px;">¿Aplica ley 1995?</label>
+                                                                        <label for="ind_ley1995" class="control-label" style="padding-left: 10px;">¿Aplica ley 1995?</label>
                                                                     </div>
                                                                     <span id="span_ind_ley1995" class="text-muted">
                                                                         NO
@@ -327,7 +327,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_excento_impuesto" name="ind_excento_impuesto" value="{{ old('ind_excento_impuesto') }}">
-                                                                        <label for="ind_excento_impuesto_check" class="control-label" style="padding-left: 10px;">¿Exento impuesto?</label>
+                                                                        <label for="ind_excento_impuesto" class="control-label" style="padding-left: 10px;">¿Exento impuesto?</label>
                                                                     </div>
                                                                     <span id="span_ind_excento_impuesto" class="text-muted">
                                                                         NO
@@ -340,7 +340,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_plusvalia" name="ind_plusvalia" value="{{ old('ind_plusvalia') }}">
-                                                                        <label for="ind_plusvalia_check" class="control-label" style="padding-left: 10px;">¿Plusvalia?</label>
+                                                                        <label for="ind_plusvalia" class="control-label" style="padding-left: 10px;">¿Plusvalía?</label>
                                                                     </div>
                                                                     <span id="span_ind_plusvalia" class="text-muted">
                                                                         NO
@@ -353,7 +353,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_invalidez" name="ind_invalidez" value="{{ old('ind_invalidez') }}">
-                                                                        <label for="ind_invalidez_check" class="control-label" style="padding-left: 10px;">¿Discapacidad?</label>
+                                                                        <label for="ind_invalidez" class="control-label" style="padding-left: 10px;">¿Discapacidad?</label>
                                                                     </div>
                                                                     <span id="span_ind_invalidez" class="text-muted">
                                                                         NO
@@ -515,7 +515,7 @@
                                                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                             <div class="form-group">
                                                                 <label class="control-label">C&oacute;digo predio:</label>
-                                                                <input type="text" style="font-size: 170%; letter-spacing: 5px;" id="codigo_predio_edit" name="codigo_predio_edit" class="form-control onlyNumbers res-validate" autocomplete="off" placeholder="Ingrese c&oacute;digo predio 15/25" value="{{ old('codigo_predio_edit') }}" maxlength="25">
+                                                                <input type="text" id="codigo_predio_edit" name="codigo_predio_edit" class="form-control campo-codigo-predio onlyNumbers res-validate" autocomplete="off" placeholder="Ingrese c&oacute;digo predio 15/25" value="{{ old('codigo_predio_edit') }}" maxlength="25">
                                                                 <span class="text-danger">@error('codigo_predio_edit') {{ $message }} @enderror</span>
                                                             </div>
                                                         </div>
@@ -723,7 +723,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_ley1995_edit" name="ind_ley1995_edit" class="res-validate" value="{{ old('ind_ley1995_edit') }}">
-                                                                        <label for="ind_ley1995_check_edit" class="control-label" style="padding-left: 10px;">¿Aplica ley 1995?</label>
+                                                                        <label for="ind_ley1995_edit" class="control-label" style="padding-left: 10px;">¿Aplica ley 1995?</label>
                                                                     </div>
                                                                     <span id="span_ind_ley1995_edit" class="text-muted">
                                                                         NO
@@ -736,7 +736,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_excento_impuesto_edit" name="ind_excento_impuesto_edit" value="{{ old('ind_excento_impuesto_edit') }}">
-                                                                        <label for="ind_excento_impuesto_check_edit" class="control-label" style="padding-left: 10px;">¿Exento impuesto?</label>
+                                                                        <label for="ind_excento_impuesto_edit" class="control-label" style="padding-left: 10px;">¿Exento impuesto?</label>
                                                                     </div>
                                                                     <span id="span_ind_excento_impuesto_edit" class="text-muted">
                                                                         NO
@@ -749,7 +749,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_plusvalia_edit" name="ind_plusvalia_edit" value="{{ old('ind_plusvalia_edit') }}">
-                                                                        <label for="ind_plusvalia_check_edit" class="control-label" style="padding-left: 10px;">¿Plusvalia?</label>
+                                                                        <label for="ind_plusvalia_edit" class="control-label" style="padding-left: 10px;">¿Plusvalía?</label>
                                                                     </div>
                                                                     <span id="span_ind_plusvalia_edit" class="text-muted">
                                                                         NO
@@ -762,7 +762,7 @@
                                                                 <div class="col-lg-12">
                                                                     <div class="form-group" style="margin-bottom: 0px;">
                                                                         <input type="checkbox" id="ind_invalidez_edit" name="ind_invalidez_edit" value="{{ old('ind_invalidez_edit') }}">
-                                                                        <label for="ind_invalidez_check_edit" class="control-label" style="padding-left: 10px;">¿Discapacidad?</label>
+                                                                        <label for="ind_invalidez_edit" class="control-label" style="padding-left: 10px;">¿Discapacidad?</label>
                                                                     </div>
                                                                     <span id="span_ind_invalidez_edit" class="text-muted">
                                                                         NO
