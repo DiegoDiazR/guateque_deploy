@@ -1,6 +1,8 @@
 {{-- Pie de página con los datos del municipio (App\Support\Municipio; contacto y enlaces de config/municipio.php).
-     Solo se imprime lo que existe. Lo usan el layout y el login. --}}
+     Solo se imprime lo que existe. Lo usan el layout y el login.
+     Con ['compacto' => true] (las pantallas de trabajo) queda en una sola línea, para no obligar a bajar la página. --}}
 @php
+    $mpCompacto = !empty($compacto);
     $mpPerfil = \App\Support\Municipio::perfil();
     $mpNombre = \App\Support\Municipio::nombre();
     $mpEscudo = \App\Support\Municipio::escudoUrl();
@@ -14,7 +16,8 @@
         'horario'   => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     ];
 @endphp
-<footer class="pie" id="contacto">
+<footer class="pie{{ $mpCompacto ? ' pie-compacto' : '' }}" id="contacto">
+    @unless ($mpCompacto)
     <div class="contenedor pie-rejilla{{ count($mpContacto) ? '' : ' pie-sin-contacto' }}">
         <div class="pie-marca">
             @if ($mpEscudo)<img src="{{ $mpEscudo }}" alt="" height="56">@endif
@@ -47,6 +50,7 @@
             </ul>
         </div>
     </div>
+    @endunless
     <div class="pie-legal">
         <div class="contenedor pie-legal-fila">
             <span>&copy; {{ date('Y') }} {{ $mpNombre }} &middot; {{ $mpPerfil['sistema'] }}</span>

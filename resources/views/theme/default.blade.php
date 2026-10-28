@@ -48,7 +48,7 @@
             @yield('modales')
             @yield('resolucion')
         </main>
-        @include('theme.footer')
+        @include('theme.footer', ['compacto' => true])
     </div>
     <!-- End Wrapper -->
     <!-- ============================================================== -->

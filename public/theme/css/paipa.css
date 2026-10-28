@@ -231,7 +231,7 @@ body.paipa .form-control:focus-visible, body.paipa .btn:focus-visible { outline-
 
 /* ===================== Franja del título de cada pantalla ===================== */
 .pagina-paipa > .container-fluid {
-    max-width: 1560px; margin: 0 auto; padding: 0 clamp(14px, 2.4vw, 36px) 56px;
+    max-width: 1560px; margin: 0 auto; padding: 0 clamp(14px, 2.4vw, 36px) 12px;
     width: 100%;
 }
 .pagina-paipa > .container-fluid > .row.bg-title {
@@ -780,6 +780,9 @@ body.paipa .acceso-texto small { font-size: 12.5px; color: var(--tenue); line-he
 .pie a:hover { color: #fff; text-decoration: underline; }
 .pie-legal { background: rgba(0, 0, 0, .22); font-size: 12.5px; color: rgba(255, 255, 255, .78); }
 .pie-legal-fila { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; padding-block: 12px; }
+/* Pie de las pantallas de trabajo: una sola barra (el pie completo queda en el ingreso y en las páginas de error) */
+.pie-compacto .pie-legal { background: none; }
+.pie-compacto .pie-legal-fila { padding-block: 13px; }
 
 /* =====================================================================
    Revisión visual final: ajustes sobre Bootstrap 3 / Pixel Admin
