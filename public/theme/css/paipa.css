@@ -817,7 +817,7 @@ body.paipa span.span_predio {
 /* Código del predio: dígitos claros, sin letra gigante ni espaciado exagerado (el placeholder va normal) */
 body.paipa .campo-codigo-predio { height: 48px; font: 600 19px/1.2 var(--sans); letter-spacing: .1em; font-variant-numeric: tabular-nums; }
 body.paipa .campo-codigo-predio::placeholder { font-size: 14.5px; font-weight: 400; letter-spacing: 0; }
-@media (max-width: 575px) { body.paipa .campo-codigo-predio { font-size: 15.5px; letter-spacing: .03em; } }
+@media (max-width: 575px) { body.paipa .campo-codigo-predio { font-size: 14.5px; letter-spacing: .01em; padding-inline: 10px; } }
 
 /* Casillas con su estado SÍ / NO (¿Aplica ley 1995?, ¿Exento impuesto?, ...): casilla y texto alineados, estado como etiqueta */
 body.paipa input[type="checkbox"], body.paipa input[type="radio"] { width: 17px; height: 17px; vertical-align: -3px; cursor: pointer; }
@@ -895,6 +895,12 @@ body.paipa .modal-header .text-danger, body.paipa .modal-header .text-info, body
 }
 .blockUI.blockMsg::before { content: ""; display: block; width: 28px; height: 28px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid var(--suave-fuerte); border-top-color: var(--primario); animation: girar .8s linear infinite; }
 
+/* Celulares: tablas más compactas para que se vea más de cada fila antes de desplazar */
+@media (max-width: 575px) {
+    body.paipa table.dataTable thead th, body.paipa .table > thead > tr > th { padding: 10px 8px; font-size: 12px; }
+    body.paipa table.dataTable tbody td, body.paipa .table > tbody > tr > td { padding: 8px; font-size: 13.5px; }
+}
+
 /* Tablas dentro de modales: los valores ("$ 7.379.000,00") no se parten en dos líneas; en pantallas angostas la tabla se desplaza dentro de su caja */
 body.paipa .modal-body table.dataTable tbody td { white-space: nowrap; }
 
@@ -902,6 +908,12 @@ body.paipa .modal-body table.dataTable tbody td { white-space: nowrap; }
 body.paipa a[style*="color: red"], body.paipa a[style*="color: red"] i { color: var(--pendiente) !important; }
 body.paipa i.fa-print[style*="float: right"] { color: var(--tenue) !important; font-size: 20px; padding: 6px; border-radius: 8px; }
 body.paipa i.fa-print[style*="float: right"]:hover { color: var(--primario-oscuro) !important; background: var(--suave); }
+
+/* Selector de archivo (bootstrap-filestyle): botón de una sola línea, con los colores del sistema en lugar del recuadro oscuro */
+body.paipa .bootstrap-filestyle .btn { white-space: nowrap; min-height: var(--alto-campo); background: var(--suave); border: 1.5px solid var(--linea-fuerte); border-radius: var(--radio-campo) 0 0 var(--radio-campo); color: var(--primario-oscuro); box-shadow: none; }
+body.paipa .bootstrap-filestyle .btn:hover { background: var(--suave-fuerte); border-color: var(--primario); }
+body.paipa .bootstrap-filestyle .form-control { border-radius: 0 var(--radio-campo) var(--radio-campo) 0; }
+body.paipa .group-span-filestyle:focus-visible .btn { outline: 3px solid var(--primario-oscuro); outline-offset: 2px; }
 
 /* Contraste: texto oscuro sobre el dorado (el blanco sobre dorado no llega a 3:1) */
 body.paipa .btn-warning, body.paipa .btn-warning.disabled, body.paipa .btn-warning:hover, body.paipa .btn-warning:focus, body.paipa .btn-warning:active,
