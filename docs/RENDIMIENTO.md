@@ -107,9 +107,8 @@ por `numero_recibo` 2.876 → 6, por fecha y banco 2.876 → 25, pagos de un pre
 Probar primero en una copia, crear fuera de horario y con respaldo; el script trae cómo revertir.
 
 ### 4.2 Cosas que cambiarían el comportamiento (solo documentadas)
-* **Seguridad (urgente, no es de rendimiento)**: `GET /autocomplete`, `/autocomplete_check`, `/test-db` y varias rutas de exportación (`/export-cartera`,
-  `/export-excel-recaudo-car/...`, `/export-pagos/...`) **responden sin iniciar sesión**, y `autocomplete*` arma el SQL concatenando lo que escribe el usuario (inyección SQL;
-  `?q=x'` devuelve el SQL en el error). Conviene exigir sesión y usar parámetros.
+* **Seguridad (pendiente, no es de rendimiento)**: la revisión del control de acceso y de las consultas de algunas rutas de consulta y exportación se entrega
+  por separado a quien administra el sistema; no se detalla aquí porque este repositorio es público.
 * `registro_resolucion_igac` cargaba **toda** la tabla `resoluciones_igac` en el HTML (87.810 filas en Guateque, 2,4 s solo de SQL): **resuelto** con paginación en el servidor y buscador (sección 3).
   Hallazgos de esa pantalla que no se tocaron: el formulario de **actualizar no lleva `@csrf`** (el botón Actualizar responde 419 «La sesión caducó»; el de Crear y el de borrar sí lo llevan) y `update()` solo guarda la columna `resolucion`, no los demás campos que muestra el formulario.
 * `list/pagos_fecha` envía todos los pagos del rango como JSON y el navegador los pagina (un año de pagos: 2,5 MB). Paginación en servidor cambiaría la interfaz.
