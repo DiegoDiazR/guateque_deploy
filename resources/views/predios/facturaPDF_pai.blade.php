@@ -1,509 +1,307 @@
+{{--
+    Factura (liquidación oficial) del Impuesto Predial Unificado de Paipa.
+    Formato de la hoja de la Alcaldía (A4, una página): encabezado, predio, vigencias, competencia,
+    total y fecha límite, notificación, firma y dos cupones (banco y municipio) con código GS1-128.
+
+    Un solo total y un solo "pague hasta": los del descuento que aplica hoy (los elige el controlador con
+    App\Support\FacturaPaipa::cuponVigente). Las normas y la notificación son el texto validado por el
+    abogado de la Alcaldía: no se cambian sin su visto bueno.
+--}}
+@php
+    $n = function ($v) { return number_format((float) $v, 0, ',', '.'); };
+    $meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    $fechaImpresion = $fecha === 'INDEFINIDA' ? \Carbon\Carbon::now()->format('d/m/Y') : $fecha;
+    $fechaHasta = \Carbon\Carbon::parse($fechas_pago_hasta[0]);
+    $hastaTexto = $fechaHasta->format('d/m/Y');
+    $total = (float) $valores_factura[0];
+    $hayFilas = count($lista_pagos) > 0;
+
+    // Un solo propietario (el principal): el controlador ya trae el de jerarquía 001.
+    $propietario = trim((string) preg_replace('/<br\s*\/?>.*$/is', '', (string) $predio->propietarios));
+    $identificacion = trim((string) preg_replace('/<br\s*\/?>.*$/is', '', (string) $predio->identificaciones));
+
+    $fechaUltimoPago = \App\Support\FacturaPaipa::fecha(isset($ultimo_anio_pagado->fecha_pago) ? $ultimo_anio_pagado->fecha_pago : '');
+    $valorUltimoPago = isset($ultimo_anio_pagado->valor_pago) ? $ultimo_anio_pagado->valor_pago : null;
+
+    // Vigencias liquidadas: las de las filas de la tabla. Si hay una fila acumulada ("Antes de ..."),
+    // el inicio no se ve en las filas y se toma de los años a pagar.
+    $vigencias = str_replace(' A ', ' a ', trim((string) $predio->anios_a_pagar));
+    $aniosFilas = [];
+    $hayAcumulada = false;
+    foreach ($lista_pagos as $p) {
+        if (ctype_digit((string) $p->anio)) { $aniosFilas[] = (int) $p->anio; } else { $hayAcumulada = true; }
+    }
+    if (!$hayAcumulada && count($aniosFilas) > 0) {
+        $vigencias = min($aniosFilas) == max($aniosFilas) ? (string) min($aniosFilas) : min($aniosFilas) . ' a ' . max($aniosFilas);
+    }
+    $variasVigencias = strpos($vigencias, ' a ') !== false;
+
+    // Filas: cada una debe sumar su total. Lo que no cabe en las columnas de la hoja (saldos, notas,
+    // otros conceptos) va en "Otros", que solo aparece si algún predio lo necesita.
+    $filas = [];
+    foreach ($lista_pagos as $p) {
+        $descuento = (float) $p->trece + (float) $p->quince;
+        $filas[] = [
+            'anio'      => (string) $p->anio,
+            'avaluo'    => (float) $p->avaluo,
+            'tarifa'    => (float) $p->m_tar,
+            'impuesto'  => (float) $p->impuesto,
+            'int_imp'   => (float) $p->impuesto_interes,
+            'car'       => (float) $p->car,
+            'int_car'   => (float) $p->car_interes,
+            'alumbrado' => (float) $p->dieciocho,
+            'descuento' => $descuento,
+            'total'     => (float) $p->total,
+        ];
+    }
+    // El valor a pagar manda: si el descuento vigente es otro (segunda o tercera fecha), la última
+    // vigencia lo absorbe en "Descuentos" para que la tabla y el total a pagar coincidan.
+    if ($hayFilas) {
+        $ult = count($filas) - 1;
+        $suma = 0;
+        foreach ($filas as $f) { $suma += $f['total']; }
+        $ajuste = $total - $suma;
+        if (abs($ajuste) >= 1) {
+            $filas[$ult]['descuento'] += $ajuste;
+            $filas[$ult]['total'] += $ajuste;
+        }
+    }
+    $hayOtros = false;
+    foreach ($filas as $k => $f) {
+        $otros = $f['total'] - ($f['impuesto'] + $f['int_imp'] + $f['car'] + $f['int_car'] + $f['alumbrado'] + $f['descuento']);
+        $filas[$k]['otros'] = abs($otros) >= 1 ? $otros : 0;
+        if ($filas[$k]['otros'] != 0) { $hayOtros = true; }
+    }
+    $tot = ['impuesto' => 0, 'int_imp' => 0, 'car' => 0, 'int_car' => 0, 'alumbrado' => 0, 'otros' => 0, 'descuento' => 0, 'total' => 0];
+    foreach ($filas as $f) { foreach ($tot as $c => $v) { $tot[$c] += $f[$c]; } }
+
+    $tasa = \App\Support\FacturaPaipa::tasaMoraAnual();
+    $letras = \App\Support\FacturaPaipa::totalEnLetras($total);
+    $zona = \App\Support\FacturaPaipa::zona(isset($predio->descripcion) ? $predio->descripcion : '');
+    $direccion = trim((string) $predio->direccion) . ($zona !== '' ? ' · ' . $zona : '');
+
+    $escudo = '';
+    foreach (['img/paipa/escudo-paipa.png', 'theme/plugins/images/logo-paipa.png'] as $ruta) {
+        if (is_file(public_path($ruta))) { $escudo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($ruta))); break; }
+    }
+    $firma = '';
+    if (is_file(public_path('theme/plugins/images/firma-paz-y-salvo-paipa-3.png'))) {
+        $firma = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('theme/plugins/images/firma-paz-y-salvo-paipa-3.png')));
+    }
+
+    $puntos = 'AGRARIO 1511-007245-4 · BANCOLOMBIA 038-851044-27 · BBVA 001380660100000027 · BOGOTÁ 676001340 · CONFIAR COOP 450006242 · DAVIVIENDA 41600000803-5 · POPULAR 261-72007-2';
+    $mostrarCupones = $hayFilas && !$facturaYaPagada;
+    $conBarras = intval($temporal) == 0;
+@endphp
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Factura predial</title>
     <style>
-        @page {
-            margin: 0;
-        }
-        * { padding: 0; margin: 0; }
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_regular-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_regular-webfont.ttf') }}) format("truetype");
-            font-weight:400;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_regular_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_regular_italic-webfont.ttf') }}) format("truetype");
-            font-weight:400;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_light-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_light-webfont.ttf') }}) format("truetype");
-            font-weight:300;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_light_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_light_italic-webfont.ttf') }}) format("truetype");
-            font-weight:300;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_bold-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_bold-webfont.ttf') }}) format("truetype");
-            font-weight:700;
-            font-style:normal
-        }
-
-        @font-face{
-            font-family:"LATAM Sans";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_bold_italic-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_bold_italic-webfont.ttf') }}) format("truetype");
-            font-weight:700;
-            font-style:italic
-        }
-
-        @font-face{
-            font-family:"LATAM Sans Extended";
-            src:url({{ storage_path('fonts/latamsans/latam_sans_extended-webfont.woff') }}) format("woff"),url({{ storage_path('fonts/latamsans/latam_sans_extended-webfont.ttf') }}) format("truetype");
-            font-weight:400
-        }
-
-        html,
-        body {
-            font-family: 'LATAM Sans';
-            padding: 10px;
-            margin: 10px;
-            /* margin:0;
-            padding:0; */
-            height:100%;
-        }
-        #container {
-            min-height:100%;
-            position:relative;
-        }
-        #header {
-            padding:10px;
-        }
-        #body {
-            padding:10px;
-        }
-        #footer {
-            position:absolute;
-            bottom:0;
-            width:100%;
-            height:35px;   /* Height of the footer */
-            text-align: center;
-            font-size: 80%;
-            border-top: 1px solid #c0c0c0;
-        }
-
-		/* div.page { width:100%; padding-top: 5%; padding-bottom: 100px; margin: 0 auto; } */
-        th, td { border: 1px solid #000000; }
-        table { border-collapse: collapse; font-size: 80%; width: 100%; }
-        td { padding: 1px; }
-        th { padding: 1px; background-color: #f3efef; }
-		p.header { width: 100%; text-align:center; font-weight: bold; padding: 0px; margin: 0px; }
-        p.previa { color: tomato; width: 100%; text-align:left; font-weight: bold; padding: 0px; margin: 0px; }
-		h3.title { width: 100%; text-align:left; }
-
-        table.no-border tr td { border: 0px; }
-        table.table-header tr td { border: 0px; }
-		table.titles tr td { border: 0px; font-size: 80%; }
-
-		table.info-predio tr th { border: 0px; background-color: #f3efef; }
-		table.info-predio tr td { border: 0px; background-color: #f3efef; }
-        table.info-predio tr th { white-space: nowrap; font-size: 70%; text-align: left; }
-		table.info-predio tr td { text-align:left; font-size: 70%; }
-
-        table.info-pagos tr th { white-space: nowrap; font-size: 70%; }
-		table.info-pagos tr td { text-align:right; font-size: 70%; }
-		table.info-pagos tr.totales th { text-align:right; }
-
-        table.info-resumen tr th { white-space: nowrap; font-size: 80%; padding: 0px; }
-		table.info-resumen tr td { white-space: nowrap; font-size: 80%; padding: 0px; padding-left: 3px; }
-
-		table.info-alcaldia tr td { border: 0px; text-align: center; font-size: 80%; }
-
-		table.info-codigo-barras tr td { border: 0px; text-align: center; font-size: 80%; }
-
-        table.info-persona-barras tr th { width: 30%; border: 0px; text-align: left; white-space: nowrap; font-size: 100%; padding: 0px; background-color: #ffffff; }
-        table.info-persona-barras tr td { border: 0px; text-align: left; white-space: nowrap; font-size: 100%; padding: 0px; background-color: #ffffff; }
-
-        .info { font-size: 70%; }
-		.negrilla {font-weight: bold;}
-        .marca-agua { color: #c0c0c0;}
-
-        .div-codigos {
-            position: absolute;
-            top: 33%;
-        }
-
-        .logo {
-            position: absolute;
-            top: 5%;
-        }
-
+        @page { margin: 22px 30px 18px 30px; }
+        body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; font-size: 9px; color: #1f2d2b; }
+        table { border-collapse: collapse; }
+        .w { width: 100%; }
+        .b { font-weight: bold; }
+        .c { text-align: center; }
+        .r { text-align: right; }
+        .verde { color: #17756f; }
+        .caja { background: #17756f; color: #ffffff; border-radius: 9px; padding: 9px 12px; text-align: center; }
+        .caja .t { font-size: 8.5px; letter-spacing: 0.4px; }
+        .caja .n { font-size: 22px; font-weight: bold; margin: 3px 0; }
+        .caja .p { font-size: 8.5px; }
+        .info td { border: 1px solid #cfdcd9; padding: 5px 7px; font-size: 10px; }
+        .info td.l { background: #e8f0ee; font-weight: bold; width: 17%; }
+        .vig { margin-top: 9px; width: 100%; }
+        .vig th { background: #17756f; color: #ffffff; padding: 6px 4px; font-size: 9px; text-align: center; }
+        .vig td { padding: 5px 5px; font-size: 10.5px; border-bottom: 1px solid #e3ecea; }
+        .vig tr.tot td { border-top: 2px solid #17756f; background: #f3f8f7; }
+        .comp { font-size: 8.4px; line-height: 1.38; text-align: justify; padding-right: 10px; }
+        .tbox { border: 1.5px solid #17756f; border-radius: 9px; padding: 10px 6px; text-align: center; }
+        .tbox .a { color: #17756f; font-size: 8px; font-weight: bold; letter-spacing: 0.5px; }
+        .tbox .m { font-size: 19px; font-weight: bold; color: #17756f; margin-top: 6px; }
+        .fbox { border: 1.5px solid #17756f; border-radius: 9px; text-align: center; margin-top: 7px; }
+        .fbox .h { background: #17756f; color: #ffffff; font-size: 8px; font-weight: bold; padding: 3px; border-radius: 7px 7px 0 0; }
+        .fbox .d { font-size: 30px; font-weight: bold; color: #17756f; padding-top: 4px; }
+        .fbox .s { font-size: 9px; font-weight: bold; padding-bottom: 6px; }
+        .nota { font-size: 8.4px; color: #4a5a57; margin: 5px 0; }
+        .not { border-left: 3px solid #17756f; background: #f3f8f7; padding: 7px 10px; font-size: 8.2px; line-height: 1.38; text-align: justify; margin-top: 5px; }
+        .corte { border-top: 1px dashed #7d8f8c; text-align: center; font-size: 8px; color: #6a7a77; margin-top: 8px; padding-top: 1px; }
+        .tijera { font-family: "DejaVu Sans", sans-serif; }
+        .cupon { border: 1.5px solid #cfdcd9; border-radius: 9px; padding: 6px 10px 3px 10px; margin-top: 2px; }
+        .cupon .v { font-size: 10px; }
+        .cupon .g { font-size: 12.5px; padding-top: 5px; }
+        .barras { text-align: center; padding-top: 4px; }
+        .bt { text-align: center; font-size: 9px; padding-top: 2px; }
+        .aviso { border: 1.5px solid #d9534f; color: #b52b27; border-radius: 9px; padding: 10px; text-align: center; font-size: 10px; font-weight: bold; margin-top: 10px; }
+        .mar { position: absolute; left: 80px; top: 330px; font-size: 62px; font-weight: bold; color: #17756f; opacity: 0.06; transform: rotate(-24deg); letter-spacing: 9px; white-space: nowrap; }
     </style>
 </head>
-@php($numero_codigos = count($valores_factura) > 2 ? count($valores_factura) - 1 : count($valores_factura))
 <body>
-    <div id="container">
-        <div id="header">
-            <table class="table-header">
-                <tr>
-                    <td style="width: 50%; text-align: left; vertical-align: bottom;">
-                        <img class="logo" style="width: 80%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/theme/plugins/images/paipa-factura.png'))) }}" alt="Logo" />
-                        {{-- <div style="padding-left: 80px; padding-right: 20px;">
-                            @if($temporal > 0)
-                            <p class="previa">
-                                VISTA PREVIA FACTURA DE COBRO
-                            </p>
-                            @endif
-                            @if($temporal > 0 || $facturaYaPagada)
-                                <h3 class="title" style="color: tomato; text-align: left; font-weight: normal;">
-                                    @if($temporal > 0)
-                                    Documento no v&aacute;lido para la ejecuci&oacute;n del pago de impuesto predial.
-                                    @elseif($facturaYaPagada && $informativa != '1')
-                                    PAGO DE FACTURA YA REGISTRADO.<br />El predio se encuentra a paz y salvo.
-                                    @endif
-                                </h3>
-                            @endif
-                        </div> --}}
-                    </td>
-                    <td>
-                        <table>
-                            <tr>
-                                <td>
-                                    <p class="header">
-                                        IMPUESTO PREDIAL UNIFICADO Y COMPLEMENTARIOS
-                                    </p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <p class="header">
-                                        LIQUIDACI&Oacute;N OFICIAL No. {{ $numero_factura }}
-                                    </p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="text-align: justify; font-size: 85%;">
-                                    <p>
-                                        La Direcci&oacute;n de Impuestos del Municipio de Paipa seg&uacute;n el Acuerdo 019 de 2022, Decreto 009 de 2017, Decreto 011 de 2017, Resoluci&oacute;n 090 de 2017 y Resoluci&oacute;n 004 de 2024, determina oficialmente los siguientes periodos gravables del Impuesto Predial Unificado, seg&uacute;n los valores e informaci&oacute;n siguiente:
-                                    </p>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="body">
-            <table class="info-predio" style="width: 100%; margin-top: 15px;">
-                <tr>
-                    <th style="width: 15%;">C&Oacute;DIGO CATASTRAL:</th>
-                    <td style="width: 35%;">{{ $predio->codigo_predio }}</td>
-                    {{-- <th style="width: 15%;">C&Oacute;DIGO ANTERIOR:</th>
-                    <td style="width: 35%;">{{ $predio->codigo_predio_anterior != null ? $predio->codigo_predio_anterior : '' }}</td> --}}
-                    <th style="width: 15%;"></th>
-                    <td style="width: 35%;"></td>
-                </tr>
-                <tr>
-                    <th>PROPIETARIO:</th>
-                    <td>{{ $predio->propietarios }}</td>
-                    <th>C.C. O NIT:</th>
-                    <td>{{ $predio->identificaciones }}</td>
-                </tr>
-                <tr>
-                    <th>DIRECCI&Oacute;N DE COBRO:</th>
-                    <td></td>
-                    <th>DIRECCI&Oacute;N:</th>
-                    <td>{{ $predio->direccion }}</td>
-                </tr>
-            </table>
-            <table class="info-predio" style="width: 100%; margin-top: 5px;">
-                <tr>
-                    <th style="width: 15%;">No RECIBO ANT</th>
-                    <th style="width: 15%;">A&Ntilde;OS A PAGAR</th>
-                    <th style="width: 15%;">PAGUE ANTES DE</th>
-                    <th style="width: 5%;"></th>
-                    <th>&Aacute;REA HA</th>
-                    <td>{{ number_format($predio->area_hectareas, 0) }}</td>
-                    <th>&Aacute;REA M2</th>
-                    <td>{{ number_format($predio->area_metros, 0) }}</td>
-                    <th>CONSTRUIDA</th>
-                    <td>{{ number_format($predio->area_construida, 0) }}</td>
-                </tr>
-                <tr>
-                    <td>{{ $ultimo_anio_pagado->factura_pago }}</td>
-                    <td>{{ $predio->anios_a_pagar }}</td>
-                    <td>{{ $fechas_pago_hasta[$numero_codigos - 1] }}</td>
-                    <td></td>
-                    <th>&Uacute;LT A&Ntilde;O PAG</th>
-                    <td>{{ $predio->ultimo_anio_pago }}</td>
-                    <th>FECHA PAG</th>
-                    <td>{{ $ultimo_anio_pagado->fecha_pago }}</td>
-                    <th>VALOR PAGADO</th>
-                    <td>@money($ultimo_anio_pagado->valor_pago)</td>
-                </tr>
-            </table>
-            <table class="info-pagos" style="width: 100%; margin-top: 10px;">
-                <tr>
-                    @if(intval($unir_impuesto_car) == 1)
-                    <th colspan="9" style="text-align: center;">DETALLE DE PAGO</th>
-                    @else
-                    <th colspan="11" style="text-align: center;">DETALLE DE PAGO</th>
-                    @endif
-                </tr>
-                <tr>
-                    <th>A&Ntilde;O</th>
-                    <th>%Mil TAR</th>
-                    <th>AVAL&Uacute;O</th>
-                    @if(intval($unir_impuesto_car) == 1)
-                    <th>IMPUESTO</th>
-                    <th>INTER&Eacute;S</th>
-                    @else
-                    <th>IMP.<br />PREDIAL</th>
-                    <th>INT.<br />PREDIAL</th>
-                    <th>CAR</th>
-                    <th>INT.<br />CAR</th>
-                    @endif
-                    <th>DESCUENTO IMP</th>
-                    <th>ALUMBRADO</th>
-                    <th>Otros</th>
-                    <th>TOTAL</th>
-                </tr>
-                <!----------------------------->
-                @if(count($lista_pagos) > 0)
-                    @php($suma_impuesto = 0)
-                    @php($suma_interes = 0)
-                    @php($suma_impuesto_interes = 0)
-                    @php($suma_car = 0)
-                    @php($suma_car_interes = 0)
-                    @php($suma_trece = 0)
-                    @php($suma_dieciocho = 0)
-                    @php($suma_otros = 0)
-                    @php($suma_total = 0)
-                    @foreach($lista_pagos as $pago)
-                    <tr>
-                        <td>{{ $pago->anio }}</td>
-                        <td>{{ $pago->m_tar }}</td>
-                        <td>@money($pago->avaluo)</td>
-                        @if(intval($unir_impuesto_car) == 1)
-                        <td>@money($pago->impuesto + $pago->car)</td>
-                        <td>@money($pago->impuesto_interes + $pago->car_interes)</td>
-                        @else
-                        <td>@money($pago->impuesto)</td>
-                        <td>@money($pago->impuesto_interes)</td>
-                        <td>@money($pago->car)</td>
-                        <td>@money($pago->car_interes)</td>
-                        @endif
-                        <td>@money($pago->trece + $pago->quince)</td>
-                        <td>@money($pago->dieciocho)</td>
-                        <td>@money($pago->diecisiete)</td>
-                        <td>@money($pago->total)</td>
-                    </tr>
-                    @if(intval($unir_impuesto_car) == 1)
-                        @php($suma_impuesto += ($pago->impuesto + $pago->car))
-                        @php($suma_interes += ($pago->impuesto_interes + $pago->car_interes))
-                    @else
-                        @php($suma_impuesto += $pago->impuesto)
-                        @php($suma_impuesto_interes += $pago->impuesto_interes)
-                        @php($suma_car += $pago->car)
-                        @php($suma_car_interes += $pago->car_interes)
-                    @endif
-                    @php($suma_trece += ($pago->trece + $pago->quince))
-                    @php($suma_dieciocho += $pago->dieciocho)
-                    @php($suma_otros += $pago->diecisiete)
-                    @php($suma_total += $pago->total)
-                    @endforeach
-                    <!----------------------------->
-                    <tr class="totales">
-                        <th colspan="3">TOTALES</th>
-                        @if(intval($unir_impuesto_car) == 1)
-                            <th>@money($suma_impuesto)</th>
-                            <th>@money($suma_interes)</th>
-                        @else
-                            <th>@money($suma_impuesto)</th>
-                            <th>@money($suma_impuesto_interes)</th>
-                            <th>@money($suma_car)</th>
-                            <th>@money($suma_car_interes)</th>
-                        @endif
-                        <th>@money($suma_trece)</th>
-                        <th>@money($suma_dieciocho)</th>
-                        <th>@money($suma_otros)</th>
-                        <th>@money($suma_total)</th>
-                    </tr>
-                @else
-                <tr>
-                    @if(intval($unir_impuesto_car) == 1)
-                    <td colspan="9" style="text-align: center;">No hay informaci&oacute;n disponible</td>
-                    @else
-                    <td colspan="11" style="text-align: center;">No hay informaci&oacute;n disponible</td>
-                    @endif
-                </tr>
-                @endif
-            </table>
-            <div style="padding-top: 0px; padding-bottom: 60px; width: 100%; text-align: left; font-size: 50%;">
-                Los intereses deber&aacute;n ser cancelados de acuerdo al valor causado por cada d&iacute;a calendario de retardo hasta la fecha efectiva de pago.
-                {{-- <div style="font-size: 130%;">
-                    @if($temporal > 0)
-                    <p class="previa">
-                        VISTA PREVIA FACTURA DE COBRO
-                    </p>
-                    @endif
-                    @if($temporal > 0 || $facturaYaPagada)
-                        <h3 class="title" style="color: tomato; text-align: left; font-weight: normal;">
-                            @if($temporal > 0)
-                            Documento no v&aacute;lido para la ejecuci&oacute;n del pago de impuesto predial.
-                            @elseif($facturaYaPagada && $informativa != '1')
-                            PAGO DE FACTURA YA REGISTRADO.<br />El predio se encuentra a paz y salvo.
-                            @endif
-                        </h3>
-                    @endif
-                </div> --}}
+<div class="mar">MUNICIPIO DE PAIPA</div>
+<table class="w">
+    <tr>
+        <td style="width: 60px;">@if($escudo !== '')<img src="{{ $escudo }}" width="52" alt="Escudo" />@endif</td>
+        <td style="vertical-align: middle;">
+            <div style="font-size: 19px; font-weight: bold;">ALCALDÍA MUNICIPAL DE PAIPA</div>
+            <div style="font-size: 10px;">NIT 891.801.240-1</div>
+            <div style="font-size: 10px; font-weight: bold;">Secretaría de Hacienda</div>
+            <div style="font-size: 10px;">Impuesto Predial Unificado</div>
+        </td>
+        <td style="width: 230px;">
+            <div class="caja">
+                <div class="t">LIQUIDACIÓN OFICIAL – FACTURA No.</div>
+                <div class="n">{{ $numero_factura }}</div>
+                <div class="p">Expedida: {{ $fechaImpresion }} · Publicada: {{ $fechaImpresion }}</div>
             </div>
-            @if(count($lista_pagos) > 0)
-                <div class="div-codigos">
-                @php($labels = ['-ENTIDAD-', '-BANCO-'])
-                @php($numero_boletas = count($valores_factura) == 1 ? 2 : count($valores_factura))
-                @for ($boletas = 0; $boletas < $numero_boletas; $boletas++)
-                    @if($boletas == 0)
-                    <div class="negrilla" style="padding-top: 0px; padding-bottom: 0px; width: 100%; text-align: center; font-size: 52%;">
-                        <span style="width: 50%;">-USUARIO-</span>
-                        <span style="width: 50%; text-align: center; position: relative; float: right;">
-                            @if($fecha == 'INDEFINIDA')
-                            {{ $fecha }}
-                            @else
-                            {{ $fecha }}, {{ $hora }}
-                            @endif
-                        </span>
-                    </div>
-                    @endif
-                    @if($numero_codigos > 0 && !$facturaYaPagada)
-                        <hr style="border: 1px dashed #000;
-                            padding-top: 5px;
-                            border-style: none none dashed;
-                            color: #fff;
-                            background-color: #fff;" />
-                        <table class="no-border" style="width: 100%; font-size: 60%;">
-                            <tr>
-                                <td style="width: 50%;"></td>
-                                <td class="negrilla">Formulario No</td>
-                                <td>{{ $numero_factura }}</td>
-                                <td class="negrilla">Referencia No</td>
-                                <td>{{ str_pad($numero_factura, 24, "0", STR_PAD_LEFT) }}</td>
-                            </tr>
-                        </table>
-                        <table class="info-codigo-barras" style="width: 100%; margin-top: 0px;">
-                            @for ($x = 0; $x < $numero_codigos; $x++)
-                                <tr>
-                                    @if($x == 0)
-                                    <td>
-                                        <table class="info-persona-barras" style="width: 100%; margin-top: 0px;">
-                                            <tr>
-                                                <td colspan="2" style="padding-bottom: 10px;">
-                                                    <img style="width: 30%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/theme/plugins/images/paipa-factura.png'))) }}" alt="Logo1" />
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>C&Oacute;DIGO CATASTRAL:</th>
-                                                <td>{{ $predio->codigo_predio }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>PROPIETARIO:</th>
-                                                <td style="word-wrap: break-word;">{{ $predio->propietarios }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>C.C. O NIT:</th>
-                                                <td>{{ $predio->identificaciones }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>DIRECCI&Oacute;N DE COBRO</th>
-                                                <td style="word-wrap: break-word;">{{ $predio->direccion }}</td>
-                                            </tr>
-                                        </table>
-                                        @if($numero_codigos == 1)
-                                        <table class="info-persona-barras" style="width: 100%; margin-top: 10px;">
-                                            <tr><th colspan="2">PUNTOS DE PAGO:</th></tr>
-                                            <tr><th>AGRARIO</th><td>1511-007245-4</td></tr>
-                                            <tr><th>BANCOLOMBIA</th><td>038-851044-27</td></tr>
-                                            <tr><th>BBVA</th><td>001380660100000027</td></tr>
-                                            <tr><th>BOGOTA</th><td>676001340</td></tr>
-                                            <tr><th>CONFIAR COOP</th><td>450006242</td></tr>
-                                            <tr><th>DAVIVIENDA</th><td>41600000803-5</td></tr>
-                                            <tr><th>POPULAR</th><td>261-72007-2</td></tr>
-                                        </table>
-                                        @endif
-                                    </td>
-                                    {{-- <td style="border: 1px solid #000;">
-                                        <p class="negrilla">A&Ntilde;OS A PAGAR: {{ $predio->anios_a_pagar }}</p>
-                                    </td> --}}
-                                    @else
-                                    <td>
-                                        <table class="info-persona-barras" style="width: 100%; margin-top: 0px;">
-                                            <tr><th colspan="2">PUNTOS DE PAGO:</th></tr>
-                                            <tr><th>AGRARIO</th><td>1511-007245-4</td></tr>
-                                            <tr><th>BANCOLOMBIA</th><td>038-851044-27</td></tr>
-                                            <tr><th>BBVA</th><td>001380660100000027</td></tr>
-                                            <tr><th>BOGOTA</th><td>676001340</td></tr>
-                                            <tr><th>CONFIAR COOP</th><td>450006242</td></tr>
-                                            <tr><th>DAVIVIENDA</th><td>41600000803-5</td></tr>
-                                            <tr><th>POPULAR</th><td>261-72007-2</td></tr>
-                                        </table>
-                                    </td>
-                                    @endif
-                                    <td style="width: 53%; padding-top: 0px; border: 0px solid #000; text-align: center;">
-                                        <p class="negrilla" style="position: absolute; width: 100%; text-align: left; padding-top: 10px; padding-left: 22px;">
-                                            A&Ntilde;OS A PAGAR:<br /><span style="font-weight: normal;">{{ $predio->anios_a_pagar }}</span>
-                                        </p>
-                                        <table style="width: 100%; font-size: 100%; padding-top: 130px;">
-                                            <tr>
-                                                <td class="negrilla">Pague hasta {{ $fechas_pago_hasta[$x] }}</td>
-                                                <td>Descuento {{ intval($porcentajes_descuento[$x]) }}%</td>
-                                                <td class="negrilla" style="font-size: 120%;">@money($valores_factura[$x])</td>
-                                            </tr>
-                                        </table>
-                                        {{-- {!! DNS1D::getBarcodeHTML($barras[$x], 'C128', 1, 80) !!} --}}
-                                        @if($temporal == 0)
-                                        <img style="padding-left: 5px; padding-top: 5px;" src="data:image/png;base64,{{ DNS1D::getBarcodePNG($barras[$x], 'C128') }}" height="60" width="371" />
-                                        <span style="width: 100%; font-size: 80%;">{{ $barras_texto[$x] }}</span>
-                                        @endif
-                                        @if($x + 1 == $numero_codigos)
-                                        <table style="width: 100%; font-size: 100%; padding-top: 5px;">
-                                            <tr>
-                                                <td class="negrilla">{{ $labels[$boletas] }}</td>
-                                                <td class="negrilla">
-                                                    @if($fecha == 'INDEFINIDA')
-                                                    {{ $fecha }}
-                                                    @else
-                                                    {{ $fecha }}, {{ $hora }}
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        @endif
-                                    </td>
-                                    {{-- <td style="width: 19%;">
-                                        <table style="width: 100%; font-size: 120%;">
-                                            <tr><td class="negrilla">Pague hasta {{ $fechas_pago_hasta[$x] }}</td></tr>
-                                            <tr><td>Descuento {{ intval($porcentajes_descuento[$x]) }}%</td></tr>
-                                            <tr><td class="negrilla">@money($valores_factura[$x])</td></tr>
-                                        </table>
-                                    </td> --}}
-                                </tr>
-                            @endfor
-                        </table>
-                    @endif
-                @endfor
-                </div>
-            @else
-                <table class="info-resumen" style="width: 100%; margin-top: 5px;">
-                    <tr>
-                        <td style="text-align: center;">NO HAY INFORMACI&Oacute;N DISPONIBLE PARA REALIZAR PAGO</td>
-                    </tr>
-                </table>
-            @endif
-        </div>
-        <div id="footer">
-            <span style="display: block; font-size: 70%;">Dise&ntilde;ado e impreso por SISTEMAS ERPSOFT SAS</span>
-            @if($temporal > 0 || $facturaYaPagada)
-                <span style="color: tomato; font-size: 70%; display: block;">
-                    @if($temporal > 0)
-                    VISTA PREVIA FACTURA DE COBRO - Documento no v&aacute;lido para la ejecuci&oacute;n del pago de impuesto predial.
-                    @elseif ($facturaYaPagada && $informativa != '1')
-                    PAGO DE FACTURA YA REGISTRADO. El predio se encuentra a paz y salvo.
-                    @endif
-                </span>
-            @endif
-        </div>
+        </td>
+    </tr>
+</table>
+
+<table class="w info" style="margin-top: 9px;">
+    <tr>
+        <td class="l">Propietario</td>
+        <td colspan="3">{{ $propietario }}</td>
+    </tr>
+    <tr>
+        <td class="l">Código catastral</td>
+        <td>{{ $predio->codigo_predio }}</td>
+        <td class="l" style="width: 11%;">NIT / C.C.</td>
+        <td>{{ $identificacion }}</td>
+    </tr>
+    <tr>
+        <td class="l">Dirección del predio</td>
+        <td>{{ $direccion }}</td>
+        <td class="l">Área</td>
+        <td>Ha {{ number_format($predio->area_hectareas, 0) }} &nbsp; Área M² {{ number_format($predio->area_metros, 0) }} &nbsp; Construida {{ number_format($predio->area_construida, 0) }}</td>
+    </tr>
+    <tr>
+        <td class="l">Últ. año pagado</td>
+        <td>
+            {{ $predio->ultimo_anio_pago }}
+            @if($fechaUltimoPago !== '') &nbsp; Fecha pago {{ $fechaUltimoPago }} @endif
+            @if(is_numeric($valorUltimoPago) && $valorUltimoPago > 0) &nbsp; Valor pagado $ {{ $n($valorUltimoPago) }} @endif
+        </td>
+        <td class="l">Vigencias liquidadas</td>
+        <td class="b">{{ $vigencias }}</td>
+    </tr>
+</table>
+
+@if($hayFilas)
+<table class="vig">
+    <tr>
+        <th>Vigencia</th>
+        <th>Avalúo<br />catastral</th>
+        <th>Tarifa<br />‰</th>
+        <th>Impuesto<br />predial</th>
+        <th>Intereses<br />predial</th>
+        <th>Sobretasa<br />ambiental</th>
+        <th>Intereses<br />sobretasa</th>
+        <th>Alumbrado<br />público</th>
+        @if($hayOtros)<th>Otros</th>@endif
+        <th>Descuentos</th>
+        <th>Total</th>
+    </tr>
+    @foreach($filas as $f)
+    @php($acumulada = strpos($f['anio'], '<') === 0)
+    <tr>
+        <td class="c b" style="white-space: nowrap;">{{ $acumulada ? 'Antes de ' . trim(substr($f['anio'], 1)) : $f['anio'] }}</td>
+        <td class="r">{{ $acumulada ? '' : $n($f['avaluo']) }}</td>
+        <td class="c">{{ $acumulada ? '' : rtrim(rtrim(number_format($f['tarifa'], 2, ',', '.'), '0'), ',') }}</td>
+        <td class="r">{{ $n($f['impuesto']) }}</td>
+        <td class="r">{{ $n($f['int_imp']) }}</td>
+        <td class="r">{{ $n($f['car']) }}</td>
+        <td class="r">{{ $n($f['int_car']) }}</td>
+        <td class="r">{{ $n($f['alumbrado']) }}</td>
+        @if($hayOtros)<td class="r">{{ $n($f['otros']) }}</td>@endif
+        <td class="r">{{ $n($f['descuento']) }}</td>
+        <td class="r b">{{ $n($f['total']) }}</td>
+    </tr>
+    @endforeach
+    <tr class="tot">
+        <td class="c b">Total</td>
+        <td></td>
+        <td></td>
+        <td class="r b">{{ $n($tot['impuesto']) }}</td>
+        <td class="r b">{{ $n($tot['int_imp']) }}</td>
+        <td class="r b">{{ $n($tot['car']) }}</td>
+        <td class="r b">{{ $n($tot['int_car']) }}</td>
+        <td class="r b">{{ $n($tot['alumbrado']) }}</td>
+        @if($hayOtros)<td class="r b">{{ $n($tot['otros']) }}</td>@endif
+        <td class="r b">{{ $n($tot['descuento']) }}</td>
+        <td class="r b">{{ $n($tot['total']) }}</td>
+    </tr>
+</table>
+
+<table class="w" style="margin-top: 7px;">
+    <tr>
+        <td style="vertical-align: top;" class="comp">
+            <span class="verde b">Competencia y determinación.</span> El Secretario de Hacienda del Municipio de Paipa, en ejercicio de la competencia de liquidación y recaudo asignada por la Resolución 031 de 2023 (Manual de Funciones), el Acuerdo 019 de 2022 y el Decreto 009 de 2017, determina oficialmente a cargo del sujeto pasivo señalado (art. 24 Acuerdo 019 de 2022 y art. 54 Ley 1430 de 2010) el Impuesto Predial Unificado sobre el avalúo catastral vigente (art. 3 Ley 44 de 1990) a la tarifa del art. 25 del Acuerdo 019 de 2022, la sobretasa ambiental (art. 44 Ley 99 de 1993, Corpoboyacá), el alumbrado público (art. 9 Acuerdo 006 de 2026) y los intereses de mora (arts. 634 y 635 E.T., art. 59 Ley 788 de 2002) de {{ $variasVigencias ? 'las vigencias' : 'la vigencia' }} {{ $vigencias }}, por <span class="verde b">{{ $letras }} (${{ $n($total) }}) M/CTE.</span>
+        </td>
+        <td style="width: 150px; vertical-align: top;">
+            <div class="tbox"><div class="a">TOTAL A PAGAR</div><div class="m">$ {{ $n($total) }}</div></div>
+        </td>
+        <td style="width: 112px; vertical-align: top;">
+            <div class="fbox"><div class="h">PAGUE HASTA</div><div class="d">{{ $fechaHasta->format('d') }}</div><div class="s">{{ $meses[$fechaHasta->month - 1] }} · {{ $fechaHasta->year }}</div></div>
+        </td>
+    </tr>
+</table>
+
+<div class="nota">Intereses de mora liquidados al {{ $fechaImpresion }} a la tasa {{ $tasa !== null ? 'de ' . \App\Support\FacturaPaipa::porcentaje($tasa) . ' % E.A.' : 'vigente' }}, por cada día de retardo (arts. 634 y 635 E.T.). Si paga después de la fecha límite, solicite una nueva liquidación.</div>
+
+<div class="not"><b>Notificación.</b> Se notifica por inserción en la página web del Municipio y publicación simultánea en la cartelera de la Secretaría de Hacienda (art. 69 Ley 1111 de 2006, mod. art. 354 Ley 1819 de 2016; art. 11 Decreto 009 de 2017). El envío al predio o al correo del contribuyente es divulgación adicional y su omisión no invalida la notificación. <b>Recurso.</b> Procede el de reconsideración, por escrito ante la Secretaría de Hacienda, dentro de los dos (2) meses siguientes a la notificación (arts. 720 y 722 E.T.), en la Carrera 22 # 25-14 de Paipa o al correo impuestos&#64;paipa-boyaca.gov.co. <b>Mérito ejecutivo.</b> En firme, este acto presta mérito ejecutivo y su cobro corresponde a la Dirección de Impuestos, Rentas y Jurisdicción Coactiva mediante el procedimiento administrativo de cobro coactivo (art. 69 Ley 1111 de 2006, arts. 823 y 828 E.T.). Los intereses se siguen causando hasta el pago efectivo.</div>
+
+<table class="w" style="margin-top: 6px;">
+    <tr>
+        <td style="vertical-align: bottom; font-size: 9px; color: #4a5a57;">
+            <b>Atención al contribuyente:</b><br />Carrera 22 # 25-14, Paipa · Tel. 318 530 9285<br />impuestos&#64;paipa-boyaca.gov.co
+        </td>
+        <td style="width: 240px; text-align: center;">
+            @if($firma !== '')<div style="height: 42px; overflow: hidden;"><img src="{{ $firma }}" width="120" alt="Firma" /></div>@else<div style="height: 42px;"></div>@endif
+            <div style="border-top: 1px solid #1f2d2b; font-size: 9.5px; font-weight: bold; padding-top: 2px;">WILLIAM NIÑO ECHEVERRÍA</div>
+            <div style="font-size: 9.5px;">Secretario de Hacienda Municipal</div>
+            <div style="font-size: 7.5px; color: #6a7a77;">Firma mecánica - art. 12 Decreto Ley 2150 de 1995</div>
+        </td>
+    </tr>
+</table>
+
+@if($mostrarCupones)
+    @foreach(['BANCO', 'MUNICIPIO'] as $rotulo)
+    <div class="corte"><span class="tijera">✂</span> Cupón para {{ $rotulo == 'BANCO' ? 'el banco' : 'el municipio' }}</div>
+    <div class="cupon">
+        <table class="w">
+            <tr>
+                <td class="v"><span class="verde b">{{ $rotulo }}</span> · Factura No. <b>{{ $numero_factura }}</b></td>
+                <td class="v c">Ref. catastral {{ $predio->codigo_predio }}</td>
+                <td class="v r">Vigencias {{ $vigencias }}</td>
+            </tr>
+            <tr>
+                <td class="b g" colspan="2">Pague hasta {{ $hastaTexto }}</td>
+                <td class="r b g">$ {{ $n($total) }}</td>
+            </tr>
+        </table>
+        @if($conBarras)
+        <div class="barras"><img src="data:image/png;base64,{{ DNS1D::getBarcodePNG($barras[0], 'C128') }}" height="62" width="520" alt="Código de barras" /></div>
+        <div class="bt">{{ $barras_texto[0] }}</div>
+        @endif
     </div>
+    @endforeach
+    <div style="font-size: 8.5px; color: #4a5a57; margin-top: 7px;"><b>Puntos de pago:</b> {{ $puntos }}</div>
+@else
+    <div class="aviso">
+        @if($facturaYaPagada && $informativa != '1')
+            PAGO DE FACTURA YA REGISTRADO.<br />El predio se encuentra a paz y salvo.
+        @endif
+    </div>
+@endif
+@else
+<div class="aviso">NO HAY INFORMACIÓN DISPONIBLE PARA REALIZAR PAGO</div>
+@endif
+
+@if($temporal > 0)
+<div class="aviso">VISTA PREVIA FACTURA DE COBRO<br />Documento no válido para la ejecución del pago de impuesto predial.</div>
+@endif
+<div style="font-size: 7px; color: #8a9a97; text-align: center; margin-top: 6px;">Diseñado e impreso por SISTEMAS ERPSOFT SAS</div>
 </body>
 </html>

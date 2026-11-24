@@ -122,6 +122,38 @@ incluye `pdf._estilos` (con el papel: `'tam' => 'A4 portrait'`) y `pdf._marco` (
    municipio cambiando temporalmente esos parámetros en la base de pruebas (guardar los valores originales y
    restaurarlos, y `php artisan cache:clear` porque `Municipio` guarda `parametros` diez minutos).
 
+## Factura de Paipa: formato de la Alcaldía (2026-11)
+
+`predios.facturaPDF_pai` reproduce la hoja que entregó la Alcaldía (A4, una página): encabezado con escudo y número de
+liquidación, datos del predio, tabla de vigencias, competencia y determinación con el valor en letras, cajas de total y
+«pague hasta», notificación/recurso/mérito ejecutivo, firma del Secretario y dos cupones (banco y municipio) con GS1-128.
+El texto legal lo validó el abogado de la Alcaldía: no se cambia sin su visto bueno.
+
+**La misma hoja la dibuja el portal de pago en línea** (repositorio `psepaipa`, `src/FacturaPdf.php`, con TCPDF): las dos
+deben verse y decir lo mismo. Si se cambia el texto, las columnas, la regla del cupón o la firma en una, se cambia en la otra.
+
+- **Un solo total y un solo «pague hasta»**: los del descuento que aplica hoy, o los del día de impresión si ya no queda
+  ninguno. Si pasa la fecha hay que imprimir otra factura. Lo elige `App\Support\FacturaPaipa::cuponVigente`, que
+  `PrediosController` llama (en las dos funciones que generan la factura) solo cuando el formato contiene `facturaPDF_pai`,
+  antes de armar el código de barras. Los otros formatos no cambian.
+- **Columnas**: impuesto, intereses, sobretasa ambiental, intereses de la sobretasa, alumbrado y descuentos (conceptos 13 y
+  15, en negativo). «Otros» (saldos, notas y cualquier concepto que no tenga columna) solo aparece si algún predio lo
+  necesita, para que cada fila siga sumando su total. Si el valor a pagar es el de la segunda o tercera fecha de descuento,
+  la última vigencia lo absorbe en «Descuentos» y la tabla coincide con el total a pagar.
+- **Más de cinco vigencias**: el controlador acumula las más viejas en una fila «Antes de AAAA» (sin avalúo ni tarifa).
+  Con este formato lo hace siempre, también en Guateque y Sutatenza (que con su formato propio listan todas las
+  vigencias): sin la fila acumulada la hoja no cabe en una página.
+- **Tasa de mora**: la de `tasas_interes` del mes de impresión (o la del último mes cargado): `tasa_mensual` × 12, en % E.A.
+- **Propietario**: solo el principal (jerarquía 001), con nombre y documento completos, como lo pidió la Alcaldía.
+- **Firma**: `public/theme/plugins/images/firma-paz-y-salvo-paipa-3.png` (la del paz y salvo) y el nombre del Secretario
+  de Hacienda están en la vista; si cambia el Secretario hay que cambiar ambos.
+- **Puntos de pago**: lista fija, igual a la factura anterior. El código de barras usa `parametros.ean` (en la hoja de
+  muestra es 7709998086715: confirmar que es el de Paipa).
+- Probado con datos de Guateque cambiando `formato-factura` en la base local (se restauró): vista previa y factura real,
+  una y varias vigencias, y con datos inventados (réplica de la hoja, fila acumulada, «Otros», descuento de otra fecha, ya
+  pagada, sin datos). Los dos códigos de barras decodifican a GS1-128 (`]C1`) con los cuatro campos. La pantalla de
+  «ya pagada» y la vista previa conservan su aviso en rojo.
+
 ## Hallazgos que no se tocaron
 
 - `predios.facturaPDF` (genérica, la que usaría Sesquilé) tiene los encabezados de columna provisionales

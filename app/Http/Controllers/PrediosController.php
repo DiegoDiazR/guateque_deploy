@@ -1657,7 +1657,7 @@ class PrediosController extends Controller
                 }
                 else if(count($lista_pagos) > 1 && $ultimo_anio_pagar->primer_fecha != null) {
                     $offset = str_contains(strtolower($alcaldia), 'de leyva') ? $currentYear - 2009 : 5;
-                    if(count($lista_pagos) > $offset && !str_contains(strtolower($alcaldia), 'guateque') && !str_contains(strtolower($alcaldia), 'sutatenza')) {
+                    if(count($lista_pagos) > $offset && (strpos($formato_factura, 'facturaPDF_pai') !== false || (!str_contains(strtolower($alcaldia), 'guateque') && !str_contains(strtolower($alcaldia), 'sutatenza')))) {
                         $obj = new StdClass();
                         $obj->anio = '< ' . $lista_pagos[count($lista_pagos) - $offset]->anio;
                         $obj_m_tar = 0;
@@ -1729,6 +1729,12 @@ class PrediosController extends Controller
                     $valores_factura[0] = (round($suma_total[0] + $ultimo_anio_pagar->total_calculo, 0));
                     $fechas_pago_hasta[0] = $dt_pago;
                     $porcentajes_descuento[0] = ($ultimo_anio_pagar->porcentaje_uno);
+                }
+
+                if (strpos($formato_factura, 'facturaPDF_pai') !== false) {
+                    // Formato oficial de Paipa: un solo total y un solo "pague hasta" (el descuento que aplica hoy,
+                    // o el día de impresión si ya no queda ninguno). Si pasa la fecha, se imprime otra factura.
+                    list($valores_factura, $fechas_pago_hasta, $porcentajes_descuento) = \App\Support\FacturaPaipa::cuponVigente($valores_factura, $fechas_pago_hasta, $porcentajes_descuento);
                 }
 
                 for ($x = 0; $x < count($valores_factura); $x++) {
@@ -2266,7 +2272,7 @@ class PrediosController extends Controller
                 }
                 else if(count($lista_pagos) > 1 && $ultimo_anio_pagar->primer_fecha != null) {
                     $offset = str_contains(strtolower($alcaldia), 'de leyva') ? $currentYear - 2009 : 5;
-                    if(count($lista_pagos) > $offset && !str_contains(strtolower($alcaldia), 'guateque') && !str_contains(strtolower($alcaldia), 'sutatenza')) {
+                    if(count($lista_pagos) > $offset && (strpos($formato_factura, 'facturaPDF_pai') !== false || (!str_contains(strtolower($alcaldia), 'guateque') && !str_contains(strtolower($alcaldia), 'sutatenza')))) {
                         $obj = new StdClass();
                         $obj->anio = '< ' . $lista_pagos[count($lista_pagos) - $offset]->anio;
                         $obj_m_tar = 0;
@@ -2338,6 +2344,12 @@ class PrediosController extends Controller
                     $valores_factura[0] = (round($suma_total[0] + $ultimo_anio_pagar->total_calculo, 0));
                     $fechas_pago_hasta[0] = $dt_pago;
                     $porcentajes_descuento[0] = ($ultimo_anio_pagar->porcentaje_uno);
+                }
+
+                if (strpos($formato_factura, 'facturaPDF_pai') !== false) {
+                    // Formato oficial de Paipa: un solo total y un solo "pague hasta" (el descuento que aplica hoy,
+                    // o el día de impresión si ya no queda ninguno). Si pasa la fecha, se imprime otra factura.
+                    list($valores_factura, $fechas_pago_hasta, $porcentajes_descuento) = \App\Support\FacturaPaipa::cuponVigente($valores_factura, $fechas_pago_hasta, $porcentajes_descuento);
                 }
 
                 for ($x = 0; $x < count($valores_factura); $x++) {
