@@ -9,7 +9,7 @@
 @push('scripts')
     <script src="{!! asset('theme/plugins/bower_components/switchery/dist/switchery.min.js') !!}"></script>
     <!-- Laravel Javascript Validation -->
-    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.min.js')}}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\PagosCreateFormRequest', '#create-form'); !!}
     {!! JsValidator::formRequest('App\Http\Requests\PagosUpdateFormRequest', '#update-form'); !!}
     <script src="{!! asset('theme/js/accounting.min.js') !!}"></script>
@@ -275,7 +275,7 @@
                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 search_general">
                                                             <div class="form-group">
                                                                 <label class="control-label" style="display: block;"><br /></label>
-                                                                <button type="button"  id="btn_buscar_pagos" class="btn btn-info"><i class="fa fa-save"></i> Filtrar pagos</button>
+                                                                <button type="button"  id="btn_buscar_pagos" class="btn btn-info"><i class="fa fa-filter"></i> Filtrar pagos</button>
                                                                 <button type="button"  id="btn_descargar_pagos" class="btn btn-success pull-right" style="display: none;"><i class="fa fa-file-excel-o"></i> Descargar EXCEL</button>
                                                             </div>
                                                         </div>

@@ -35,8 +35,14 @@ $(document).ready(function() {
     $('.search_general').fadeIn();
     $('.search_factura').fadeOut();
 
+    // Solo se consulta cuando el número cambia: las flechas o Shift no repiten la consulta.
+    var numero_recibo_consultado = '';
+    $('#numero_recibo').bind('focus', function() { numero_recibo_consultado = ''; });
     $('#numero_recibo').bind('keyup', function() {
-        if($.trim($(this).val()).length === 9) {
+        var numero_recibo_actual = $.trim($(this).val());
+        if (numero_recibo_actual === numero_recibo_consultado) { return; }
+        numero_recibo_consultado = numero_recibo_actual;
+        if(numero_recibo_actual.length === 9) {
             getInfoPago();
         }
         else {
@@ -82,7 +88,7 @@ $(document).ready(function() {
         $('#modal-carga-archivo-asobancaria').modal({ backdrop: 'static', keyboard: false }, 'show');
         $('#btn_cargar_archivo_asobancaria').attr('disabled', true);
 
-        $('#modal-carga-archivo-asobancaria').on('hidden.bs.modal', function() {
+        $('#modal-carga-archivo-asobancaria').off('hidden.bs.modal').on('hidden.bs.modal', function() {
             $('#load-form')[0].reset();
             $('#upload-asobancaria').attr('disabled', false);
             reset_bar(false);
@@ -96,7 +102,7 @@ $(document).ready(function() {
         $('#modal-search-recibo').modal({ backdrop: 'static', keyboard: false }, 'show');
         // $('#btn_cargar_archivo_asobancaria').attr('disabled', true);
 
-        $('#modal-search-recibo').on('hidden.bs.modal', function() {
+        $('#modal-search-recibo').off('hidden.bs.modal').on('hidden.bs.modal', function() {
             $('#numero_recibo_search').val('');
             $('#search-pago').attr('disabled', false);
             $('#btn_buscar_recibo').attr('disabled', true);
@@ -105,11 +111,11 @@ $(document).ready(function() {
             $('#div_descargar_factura').fadeOut();
         });
 
-        $('#modal-search-recibo').on('show.bs.modal', function() {
+        $('#modal-search-recibo').off('show.bs.modal').on('show.bs.modal', function() {
             $('#numero_recibo_search').val('');
         });
 
-        $('#modal-search-recibo').on('shown.bs.modal', function() {
+        $('#modal-search-recibo').off('shown.bs.modal').on('shown.bs.modal', function() {
             $('#numero_recibo_search').focus();
         });
 
@@ -253,7 +259,7 @@ $(document).ready(function() {
                         type: "warning",
                         showCancelButton: true,
                         confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Si",
+                        confirmButtonText: "Sí",
                         cancelButtonText: "No",
                         closeOnConfirm: true,
                         closeOnCancel: true
@@ -538,7 +544,7 @@ $(document).ready(function() {
             },
         });
         fetch(`/export-pagos/${fecha_pago_inicial}/${fecha_pago_final}/${id_banco_inicial}/${id_banco_final}`)
-        .then(resp => resp.blob())
+        .then(revisarDescarga)
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -567,7 +573,7 @@ $(document).ready(function() {
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Si",
+            confirmButtonText: "Sí",
             cancelButtonText: "No",
             closeOnConfirm: true,
             closeOnCancel: true

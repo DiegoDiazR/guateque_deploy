@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <meta http-equiv="refresh" content="{{ intval(config('session.lifetime')) * 60 }};url=/">
+    {{-- La salida por inactividad la maneja site.js (avisa antes y cuenta desde la última operación), no un meta refresh. --}}
     @if ($mpEscudo = \App\Support\Municipio::escudoUrl())<link rel="icon" type="image/png" href="{{ $mpEscudo }}">@endif
     <title>{{ \App\Support\Municipio::perfil()['sistema'] }} | {{ \App\Support\Municipio::nombre() }}</title>
     {{-- CSS comunes en un solo archivo (lista en config/theme_assets.php; se arma con php scripts/build_assets.php).
@@ -20,7 +20,7 @@
     @include('theme.identidad')
 </head>
 
-<body class="paipa">
+<body class="paipa" data-sesion-minutos="{{ intval(config('session.lifetime')) }}">
     <!-- ============================================================== -->
     <!-- Preloader -->
     <!-- ============================================================== -->

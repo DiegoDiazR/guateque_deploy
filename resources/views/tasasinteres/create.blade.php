@@ -3,7 +3,7 @@
 
 @push('scripts')
     <!-- Laravel Javascript Validation -->
-    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.min.js')}}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\TasasInteresCreateFormRequest', '#create-form'); !!}
     {!! JsValidator::formRequest('App\Http\Requests\TasasInteresUpdateFormRequest', '#update-form'); !!}
     <script src="{!! asset('theme/js/accounting.min.js') !!}"></script>

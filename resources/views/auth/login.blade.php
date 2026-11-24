@@ -82,7 +82,7 @@
 <!-- Bootstrap Core JavaScript -->
 <script src="{!! asset('theme/bootstrap/dist/js/bootstrap.min.js') !!}"></script>
 <!-- Laravel Javascript Validation -->
-<script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
+<script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.min.js')}}"></script>
 {!! JsValidator::formRequest('App\Http\Requests\LoginFormRequest', '#loginform'); !!}
 <script>
     // Mostrar u ocultar la contraseña

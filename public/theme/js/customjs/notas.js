@@ -79,7 +79,7 @@ $(document).ready(function() {
                         type: "warning",
                         showCancelButton: true,
                         confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Si",
+                        confirmButtonText: "Sí",
                         cancelButtonText: "No",
                         closeOnConfirm: true,
                         closeOnCancel: true
@@ -246,7 +246,7 @@ $(document).ready(function() {
                     },
                 });
                 fetch(`/export-excel-${tipo}/${fecha_inicial}/${fecha_final}`)
-                .then(resp => resp.blob())
+                .then(revisarDescarga)
                 .then(blob => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');

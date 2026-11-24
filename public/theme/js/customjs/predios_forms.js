@@ -523,7 +523,7 @@ $(document).ready(function() {
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Si",
+            confirmButtonText: "Sí",
             cancelButtonText: "No",
             closeOnConfirm: true,
             closeOnCancel: true
@@ -782,7 +782,7 @@ $(document).ready(function() {
             },
         });
         fetch('/export-cartera')
-        .then(resp => resp.blob())
+        .then(revisarDescarga)
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1061,7 +1061,7 @@ $(document).ready(function() {
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Si",
+                    confirmButtonText: "Sí",
                     cancelButtonText: "No",
                     closeOnConfirm: true,
                     closeOnCancel: true
@@ -1344,7 +1344,7 @@ $(document).ready(function() {
                         is_toast = true;
                         $.toast({
                             heading: 'Atención',
-                            text: 'La identificación ingresada ya existente en la lista de propietarios actual.',
+                            text: 'La identificación ingresada ya existe en la lista de propietarios actual.',
                             position: 'top-center',
                             loaderBg: '#fff',
                             icon: 'warning',
@@ -1905,14 +1905,14 @@ function getPrediosNoCalculados(id_predio_inicial) {
                 if (id_predio_inicial === 0) {
                     $('#span_total_predios').html(response.predios.length);
                     $.each(response.predios, function(i, el){
-                        $('#id_predio_inicial').append('<option value="' + el.id + '">' + el.codigo_predio + ' - ' + el.direccion + '</option>');
+                        $('#id_predio_inicial').append('<option value="' + el.id + '">' + escHtml(el.codigo_predio) + ' - ' + escHtml(el.direccion) + '</option>');
                     });
                     $('#id_predio_inicial').selectpicker("refresh");
                     $.unblockUI();
                 } else {
                     $('#span_disponibles_predios').html(response.predios.length);
                     $.each(response.predios, function(i, el){
-                        $('#id_predio_final').append('<option value="' + el.id + '">' + el.codigo_predio + ' - ' + el.direccion + '</option>');
+                        $('#id_predio_final').append('<option value="' + el.id + '">' + escHtml(el.codigo_predio) + ' - ' + escHtml(el.direccion) + '</option>');
                     });
                     $('#id_predio_final').selectpicker("refresh");
                     $('#div_id_predio_final').fadeIn(function() {

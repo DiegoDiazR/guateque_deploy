@@ -998,3 +998,68 @@ body.paipa #div_msg_predio_existe mark, body.paipa #div_msg_predio_disponible ma
 }
 body.paipa #div_msg_predio_disponible mark { background: var(--ok-fondo) !important; color: var(--ok) !important; border-color: #a9dcbc; border-left-color: var(--ok); }
 
+
+/* =====================================================================
+   Contraste y lectura (2026-11-18)
+   El texto blanco sobre --primario (verde azulado) da 3,06:1 y lo
+   recomendado para texto normal es 4,5:1. Donde hay texto blanco pequeño
+   el fondo pasa a --primario-oscuro (5,5:1 con el color de Paipa).
+   --primario queda para adornos, bordes y la franja del título (letra grande).
+   ===================================================================== */
+.menu-enlace.activo,
+body.paipa .panel .panel-heading, body.paipa .panel-heading,
+body.paipa .panel-inverse > .panel-heading, body.paipa .panel-primary > .panel-heading, body.paipa .panel-info > .panel-heading,
+body.paipa .modal-header,
+body.paipa .table > thead > tr > th, body.paipa table.dataTable thead th, body.paipa table.dataTable thead td,
+body.paipa .select2-container--default .select2-results__option.select2-results__option--highlighted[aria-selected],
+body.paipa .select2-container--default .select2-results__option.select2-results__option--highlighted[data-selected],
+.datepicker-panel > ul > li[data-view="day picked"], .datepicker-panel > ul > li[data-view="month picked"], .datepicker-panel > ul > li[data-view="year picked"],
+.barra-tareas li > a:hover, .barra-tareas li > a:focus-visible { background: var(--primario-oscuro); }
+body.paipa .panel-default > .panel-heading { background: var(--suave); }
+.barra-tareas li > a:hover, .barra-tareas li > a:focus-visible { border-color: var(--primario-oscuro); }
+
+body.paipa .btn-info, body.paipa .btn-primary, body.paipa .btn-info.disabled, body.paipa .btn-primary.disabled { background: var(--primario-oscuro); border-color: var(--primario-oscuro); }
+body.paipa .btn-info:hover, body.paipa .btn-info:focus, body.paipa .btn-info:active, body.paipa .btn-primary:hover, body.paipa .btn-primary:focus, body.paipa .btn-primary:active,
+body.paipa .btn-info.focus, body.paipa .btn-info:active:focus { filter: brightness(.88); }
+
+body.paipa .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.paipa .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover { background: var(--primario-oscuro) !important; border-color: var(--primario-oscuro) !important; }
+
+/* Píldora del rol sobre la franja: fondo oscuro sólido en vez de blanco translúcido (2,5:1) */
+.bg-title .breadcrumb > li { background: var(--primario-oscuro); }
+
+/* Enlaces: al pasar el ratón se subrayan, no se aclaran */
+body.paipa a:hover, body.paipa a:focus { color: var(--primario-oscuro); }
+
+/* Campos: borde y texto de ejemplo más visibles; letra un punto mayor en etiquetas y encabezados de tabla */
+body.paipa .form-control, body.paipa textarea.form-control, body.paipa .bootstrap-select > .dropdown-toggle,
+body.paipa .select2-container--default .select2-selection--single, body.paipa .select2-container--default .select2-selection--multiple { border-color: #869a95; }
+body.paipa .form-control:focus { border-color: var(--primario-oscuro); }
+body.paipa .has-error .form-control { border-color: var(--pendiente); }
+body.paipa a:hover, body.paipa a:focus { text-decoration: underline; }
+body.paipa a.btn:hover, body.paipa a.btn:focus, body.paipa .menu a:hover, body.paipa .cabecera a:hover, body.paipa .nav a:hover, body.paipa .paginate_button:hover { text-decoration: none; }
+body.paipa .form-control::placeholder { color: #66756f; }
+body.paipa label, body.paipa .control-label { font-size: 14px; }
+body.paipa .table > thead > tr > th, body.paipa table.dataTable thead th, body.paipa table.dataTable thead td { font-size: 13.5px; }
+body.paipa .label, body.paipa .badge { font-size: 12px; }
+
+/* Campo obligatorio: asterisco junto a la etiqueta (lo pone site.js según las reglas de validación del formulario) */
+.obligatorio-marca { margin-left: 3px; color: var(--pendiente); font-weight: 700; }
+.obligatorio-leyenda { margin: 0 0 12px; font-size: 13px; color: var(--tenue); }
+
+/* Cerrar y Cancelar de los modales: neutros. El rojo queda para borrar y anular. */
+body.paipa .modal-footer .btn-danger[data-dismiss="modal"], body.paipa .modal-footer .btn-danger.btn-cierra-modal {
+    background: #fff; border-color: var(--linea-fuerte); color: var(--tinta); box-shadow: none;
+}
+body.paipa .modal-footer .btn-danger[data-dismiss="modal"]:hover, body.paipa .modal-footer .btn-danger[data-dismiss="modal"]:focus {
+    background: #eef3f1; border-color: var(--tenue); color: var(--tinta);
+}
+
+/* Botón de una operación que ya viaja al servidor */
+body.paipa .btn.enviando, body.paipa .btn[disabled].enviando { cursor: progress; opacity: .7; }
+
+/* Total y página del listado (DataTables "info") */
+body.paipa .dataTables_wrapper .dataTables_info { padding-top: 12px; font-size: 13px; color: var(--tenue); }
+
+/* Acciones de cada fila: los botones no se montan uno sobre otro en columnas angostas */
+body.paipa #myTable td.cell_center:last-child { white-space: nowrap; }

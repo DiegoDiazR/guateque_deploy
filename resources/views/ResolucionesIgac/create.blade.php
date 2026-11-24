@@ -3,7 +3,7 @@
 
 @push('scripts')
     <!-- Laravel Javascript Validation -->
-    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.min.js')}}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\ResolucionesIgacCreateFormRequest', '#create-form'); !!}
     {!! JsValidator::formRequest('App\Http\Requests\ResolucionesIgacUpdateFormRequest', '#update-form'); !!}
     <script src="{!! asset('theme/js/autonumeric.min.js') !!}"></script>
@@ -222,7 +222,7 @@
                                                             <th class="cell_center">Fecha</th>
                                                             <th class="cell_center">Consecutivo</th>
                                                             <th class="cell_center">C&oacute;digo</th>
-                                                            <th class="cell_center">C&oacute;digo nnterior</th>
+                                                            <th class="cell_center">C&oacute;digo anterior</th>
                                                             <th class="cell_center">Tipo</th>
                                                             <th class="cell_center">Tipo registro</th>
                                                             <th class="cell_center">N&uacute;mero orden</th>

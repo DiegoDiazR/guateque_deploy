@@ -4,7 +4,7 @@
 
 @push('scripts')
     <!-- Laravel Javascript Validation -->
-    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.min.js')}}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\PrediosCreateFormRequest', '#create-form'); !!}
     {!! JsValidator::formRequest('App\Http\Requests\PrediosUpdateFormRequest', '#update-form'); !!}
     <script src="{!! asset('theme/js/accounting.min.js') !!}"></script>
@@ -66,14 +66,14 @@
                                                 <div id="div_msg_predio_existe" class="col-lg-8 col-md-7 col-sm-12 col-xs-12" style="display: none;">
                                                     <h2 style="margin-top: 2.5rem;">
                                                         <mark style="border-radius: 0.7rem;">
-                                                            Atenci&oacute;n!!! El c&oacute;digo de predio ingresado ya existe en el sistema.
+                                                            Atenci&oacute;n: el c&oacute;digo de predio ingresado ya existe en el sistema.
                                                         </mark>
                                                     </h2>
                                                 </div>
                                                 <div id="div_msg_predio_disponible" class="col-lg-8 col-md-7 col-sm-12 col-xs-12" style="display: none;">
                                                     <h2 style="margin-top: 2.5rem;">
                                                         <mark style="background-color: #d9f4e3; border-radius: 0.7rem;">
-                                                            Atenci&oacute;n!!! C&oacute;digo de predio disponible.
+                                                            C&oacute;digo de predio disponible.
                                                         </mark>
                                                     </h2>
                                                 </div>
@@ -422,7 +422,7 @@
                                                                     <table class="table table-hover">
                                                                         <thead>
                                                                             <tr>
-                                                                                <th>Total por calular</th>
+                                                                                <th>Total por calcular</th>
                                                                                 <th>Procesados</th>
                                                                                 <th>Restantes</th>
                                                                             </tr>
@@ -1072,7 +1072,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> --}}
-                <h4 class="modal-title" id="modal-impresion-paz-label">Atenci&oacute;n!</h4>
+                <h4 class="modal-title" id="modal-impresion-paz-label">Generaci&oacute;n de paz y salvo</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1139,7 +1139,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> --}}
-                <h4 class="modal-title" id="modal-datos-basicos-label">Informaci&oacute;n adicional - <span>Datos b&aacute;sicos predios</h4>
+                <h4 class="modal-title" id="modal-datos-basicos-label">Informaci&oacute;n adicional - <span>Datos b&aacute;sicos predios</span></h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1238,7 +1238,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> --}}
-                <h4 class="modal-title" id="modal-datos-propietarios-label">Informaci&oacute;n adicional - <span>Datos propietarios</h4>
+                <h4 class="modal-title" id="modal-datos-propietarios-label">Informaci&oacute;n adicional - <span>Datos propietarios</span></h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1309,8 +1309,8 @@
                  </div>
             </div>
             <div class="modal-footer">
-                <button id="new_dp" type="button" class="btn btn-success pull-left control_propietarios" style="display: none;"> <i class="fa fa-cogs"></i> Nuevo</button>
-                <button id="cancel_dp" type="button" class="btn btn-default pull-left" style="display: none;"> <i class="fa fa-cogs"></i> Cancelar</button>
+                <button id="new_dp" type="button" class="btn btn-success pull-left control_propietarios" style="display: none;"> <i class="fa fa-plus"></i> Nuevo</button>
+                <button id="cancel_dp" type="button" class="btn btn-default pull-left" style="display: none;"> <i class="fa fa-times"></i> Cancelar</button>
                 {{-- <button id="prev_dp" type="button" class="btn btn-default pull-left control_propietarios" style="display: none;"> <i class="fa fa-angle-double-left"></i> Anterior</button> --}}
                 {{-- <button id="next_dp" type="button" class="btn btn-default pull-left control_propietarios" style="display: none;"> <i class="fa fa-angle-double-right"></i> Siguiente</button> --}}
                 <button id="save_dp" type="button" class="btn btn-info"> <i class="fa fa-save"></i> Guardar informaci&oacute;n</button>
@@ -1323,7 +1323,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="modal-datos-calculo-label">Informaci&oacute;n adicional - <span>Datos c&aacute;lculo</h4>
+                <h4 class="modal-title" id="modal-datos-calculo-label">Informaci&oacute;n adicional - <span>Datos c&aacute;lculo</span></h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1393,7 +1393,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="modal-datos-pagos-label">Informaci&oacute;n adicional - <span>Datos pagos</h4>
+                <h4 class="modal-title" id="modal-datos-pagos-label">Informaci&oacute;n adicional - <span>Datos pagos</span></h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1596,7 +1596,7 @@
             </div>
             <div class="modal-footer">
                 <button id="save_dap" type="button" class="btn btn-info"> <i class="fa fa-save"></i> Guardar informaci&oacute;n</button>
-                <button id="anular_dap" type="button" class="btn btn-danger"> <i class="fa fa-save"></i> Anular acuerdo de pago</button>
+                <button id="anular_dap" type="button" class="btn btn-danger"> <i class="fa fa-ban"></i> Anular acuerdo de pago</button>
                 <button type="button" class="btn btn-default waves-effect text-left" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
@@ -1607,7 +1607,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> --}}
-                <h4 class="modal-title" id="modal-datos-abonos-label">Informaci&oacute;n adicional - <span>Datos abonos</h4>
+                <h4 class="modal-title" id="modal-datos-abonos-label">Informaci&oacute;n adicional - <span>Datos abonos</span></h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1651,8 +1651,8 @@
                  </div>
             </div>
             <div class="modal-footer">
-                <button id="new_da" type="button" class="btn btn-success pull-left" style="display: none;"> <i class="fa fa-cogs"></i> Nuevo</button>
-                <button id="cancel_da" type="button" class="btn btn-default pull-left" style="display: none;"> <i class="fa fa-cogs"></i> Cancelar</button>
+                <button id="new_da" type="button" class="btn btn-success pull-left" style="display: none;"> <i class="fa fa-plus"></i> Nuevo</button>
+                <button id="cancel_da" type="button" class="btn btn-default pull-left" style="display: none;"> <i class="fa fa-times"></i> Cancelar</button>
                 <button id="save_da" type="button" class="btn btn-info"> <i class="fa fa-save"></i> Guardar informaci&oacute;n</button>
                 <button type="button" class="btn btn-default waves-effect text-left" data-dismiss="modal">Cerrar</button>
             </div>
@@ -1664,7 +1664,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> --}}
-                <h4 class="modal-title" id="modal-datos-procesos-historicos-label">Informaci&oacute;n adicional - <span>Procesos e Hist&oacutericos</h4>
+                <h4 class="modal-title" id="modal-datos-procesos-historicos-label">Informaci&oacute;n adicional - <span>Procesos e Hist&oacute;ricos</span></h4>
             </div>
             <div class="modal-body">
                 <table id="avaluosTable" class="table table-hover table-condensed table-striped table-bordered" style="margin-bottom: 10px;"></table>
@@ -1695,7 +1695,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> --}}
-                <h4 class="modal-title" id="modal-datos-estado-cuenta-label">Informaci&oacute;n adicional - <span>Estado de Cuenta</h4>
+                <h4 class="modal-title" id="modal-datos-estado-cuenta-label">Informaci&oacute;n adicional - <span>Estado de Cuenta</span></h4>
             </div>
             <div class="modal-body">
                 <table id="estadoCuentaTable" class="table table-hover table-condensed table-striped table-bordered" style="margin-bottom: 10px;"></table>

@@ -3,7 +3,7 @@
 
 @push('scripts')
     <!-- Laravel Javascript Validation -->
-    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.min.js')}}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\PasswordChangeFormRequest', '#change-pass-form'); !!}
 @endpush
 <div class="container-fluid">
@@ -78,7 +78,7 @@
             <div class="white-box">
                 Se recomienda:
                 <ul>
-                    <li>M&iacute;nimo 6 caract&eacute;res</li>
+                    <li>M&iacute;nimo 6 caracteres</li>
                     <li>Al menos una letra may&uacute;scula</li>
                     <li>Al menos un n&uacute;mero</li>
                     <li>Al menos un s&iacute;mbolo ~ ! @ - # $</li>

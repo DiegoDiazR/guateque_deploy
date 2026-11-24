@@ -292,7 +292,7 @@ $(document).ready(function() {
                         type: "warning",
                         showCancelButton: true,
                         confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Si",
+                        confirmButtonText: "Sí",
                         cancelButtonText: "No",
                         closeOnConfirm: true,
                         closeOnCancel: true
@@ -578,7 +578,7 @@ $(document).ready(function() {
                     },
                 });
                 fetch(`/export-excel-${tipo}/${fecha_inicial}/${fecha_final}`)
-                .then(resp => resp.blob())
+                .then(revisarDescarga)
                 .then(blob => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -802,7 +802,7 @@ $(document).ready(function() {
                 overlayCSS: { zIndex: 1100 }
             });
             fetch('/export-excel-acuerdo-detalle/' + id_acuerdo)
-            .then(function(resp) { return resp.blob(); })
+            .then(revisarDescarga)
             .then(function(blob) {
                 var url = window.URL.createObjectURL(blob);
                 var a = document.createElement('a');
@@ -836,7 +836,7 @@ $(document).ready(function() {
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Si",
+                confirmButtonText: "Sí",
                 cancelButtonText: "No",
                 closeOnConfirm: true,
                 closeOnCancel: true
@@ -974,7 +974,7 @@ $(document).ready(function() {
             });
 
             fetch(`/export-excel-acuerdos/${fecha_inicial}/${fecha_final}`)
-            .then(resp => resp.blob())
+            .then(revisarDescarga)
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1371,10 +1371,10 @@ function downloadFacturaRowProcesar(btn) {
             'success', 
             '', 
             function() {
+                $(btn).attr('disabled', false);
                 getJsonAcuerdoAnios(global_acuerdo.id, global_acuerdo.anio_inicial_acuerdo, global_acuerdo.anio_final_acuerdo);
             }
         );
-        $(btn).attr('disabled', false);
     });
 }
 
@@ -1383,6 +1383,9 @@ function downloadFacturaRowReprocesar(btn) {
     var url_download = $(btn).attr('url');
     global_url_print = url_download;
     $(btn).attr('disabled', true);
-    startImpresion(global_url_print, 'Generación de factura cuota(s) acuerdo de pago. Espere un momento por favor.', 'success', '', getJsonAcuerdoAnios(global_acuerdo.id, global_acuerdo.anio_inicial_acuerdo, global_acuerdo.anio_final_acuerdo));
-    $(btn).attr('disabled', false);
+    startImpresion(global_url_print, 'Generación de factura cuota(s) acuerdo de pago. Espere un momento por favor.', 'success', '', function() {
+        // Se refresca el acuerdo cuando la factura ya se generó (antes se refrescaba antes de imprimir).
+        $(btn).attr('disabled', false);
+        getJsonAcuerdoAnios(global_acuerdo.id, global_acuerdo.anio_inicial_acuerdo, global_acuerdo.anio_final_acuerdo);
+    });
 }

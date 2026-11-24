@@ -1022,7 +1022,7 @@ $(document).ready(function() {
     $('#generate_paz').off('click').on('click', function() {
         $('.btn_pdf').attr('disabled', true);
         if(checkFormPaz()) {
-            startImpresion(global_url_print + '/' + $('#destino_paz').val() + '/' + $('#fecha_paz').val() + '/' + $('#valor_paz').val(), 'Iniciando generación de documento de paz y salvo. Espere un momento por favor.', 'warning', 'modal-impresion-paz', undefined);
+            startImpresion(global_url_print + '/' + encodeURIComponent($('#destino_paz').val()) + '/' + $('#fecha_paz').val() + '/' + $('#valor_paz').val(), 'Iniciando generación de documento de paz y salvo. Espere un momento por favor.', 'warning', 'modal-impresion-paz', undefined);
         }
     });
 
@@ -1203,7 +1203,7 @@ $(document).ready(function() {
                     },
                 });
                 fetch(`/export-excel-${tipo}/${fecha_inicial}/${fecha_final}`)
-                .then(resp => resp.blob())
+                .then(revisarDescarga)
                 .then(blob => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -1249,7 +1249,7 @@ $(document).ready(function() {
                 },
             });
             fetch(`/export-excel-${tipo.replace(/_/g, '-')}/${$('#id_edit').val()}`)
-            .then(resp => resp.blob())
+            .then(revisarDescarga)
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1339,11 +1339,11 @@ function setEditRow(initDataTable) {
         if(initDataTable) {
             $('#myTable').DataTable({
                 "destroy": true,
-                "ordering": false,
+                "ordering": true,
                 "order": [],
                 "lengthChange": false,
-                "info": false,
-                "pageLength": 5,
+                "info": true,
+                "pageLength": 15,
                 "select": false,
                 "autoWidth": false,
                 "language": {
@@ -1376,7 +1376,7 @@ function setDeleteRow() {
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Si",
+                confirmButtonText: "Sí",
                 cancelButtonText: "No",
                 closeOnConfirm: true,
                 closeOnCancel: true
@@ -1407,7 +1407,7 @@ function setDownloadFacturaRow() {
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Si",
+                    confirmButtonText: "Sí",
                     cancelButtonText: "No",
                     closeOnConfirm: true,
                     closeOnCancel: true
@@ -1698,8 +1698,12 @@ function setDownloadPazRow() {
     }
 }
 
+// Genera y descarga un PDF (factura, paz y salvo, listados). La descarga se hace con fetch para saber
+// cuándo terminó y si falló: el botón sigue bloqueado hasta que el servidor responde (antes se liberaba
+// solo a los 4 segundos) y, si el servidor falla, se avisa en vez de no mostrar nada.
 function startImpresion(url_download, message_toast, type_icon, modal, callback) {
     if(url_download.length > 0) {
+        $('.btn_pdf').attr('disabled', true);
         $.toast({
             heading: 'Atención',
             text: message_toast,
@@ -1707,28 +1711,28 @@ function startImpresion(url_download, message_toast, type_icon, modal, callback)
             loaderBg: '#fff',
             icon: type_icon,
             hideAfter: 4000,
-            stack: 6,
-            afterHidden: function () {
-                if(modal.length > 0) {
-                    // $('.btn_pdf').attr('disabled', false);
-                    $('#' + modal).modal('hide');
-                }
-                $('.btn_pdf').attr('disabled', false);
+            stack: 6
+        });
+        descargarArchivo(url_download, 'documento.pdf').then(function(ok) {
+            if (modal && modal.length > 0) {
+                $('#' + modal).modal('hide');
+            }
+            $('.btn_pdf').attr('disabled', false);
+            if (ok) {
+                $.toast({
+                    heading: 'Listo',
+                    text: 'El documento se descargó. Búsquelo en las descargas del navegador.',
+                    position: 'top-right',
+                    loaderBg: '#fff',
+                    icon: 'success',
+                    hideAfter: 5000,
+                    stack: 6
+                });
+            }
+            if (typeof callback === 'function') {
+                callback();
             }
         });
-        setTimeout(function() {
-            if ($('#iframe_reporte').length > 0) {
-                $('#iframe_reporte').remove();
-            }
-            var iframe = $('<iframe id="iframe_reporte" style="display:none;"></iframe>');
-            iframe.attr('src', url_download);
-            $('body').append(iframe);
-            if (callback !== undefined) {
-                setTimeout(function() {
-                    callback();
-                }, 1000);
-            }
-        }, 1000);
     }
     else {
         swal({
@@ -1816,7 +1820,9 @@ function getPredio(id_predio, showBlock, getData) {
                 var disabledBtnCalculo = '';
                 var disabledBtnPaz = '';
                 var disabledBtnElimina = '';
-                var tr = $('<tr style="cursor: pointer;" id="tr_predio_' + predio.id + '" json-data=\'' + JSON.stringify(predio) + '\' class="predio_row"></tr>');
+                var tr = $('<tr style="cursor: pointer;" id="tr_predio_' + predio.id + '" class="predio_row"></tr>');
+                // El dato va como atributo con .attr(): un apostrofo en la direccion o el propietario ya no lo rompe.
+                tr.attr('json-data', JSON.stringify(predio));
                 var td_1 = $('<td class="cell_center">' + predio.codigo_predio + '&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-copy copy_predio" data-codigo="' + predio.codigo_predio + '" data-toggle="tooltip" data-placement="top" title="Copiar al portapapeles"></i></td>');
                 // if(Number(predio.prescrito) > 0) {
                 //     td_1.append('&nbsp;&nbsp;<span data-toggle="tooltip" data-placement="bottom" title="Prescrito hasta ' + predio.prescribe_desde + '" style="color: #f41a0f;"><i class="fa fa-info-circle"></i></span>');
@@ -1870,8 +1876,8 @@ function getPredio(id_predio, showBlock, getData) {
                     });
                 }
 
-                var td_2 = $('<td class="edit_row cell_center">' + predio.direccion + '</td>');
-                var td_3 = $('<td class="edit_row cell_center">' + predio.propietarios + '</td>');
+                var td_2 = $('<td class="edit_row cell_center">' + escHtml(predio.direccion) + '</td>');
+                var td_3 = $('<td class="edit_row cell_center">' + escHtmlConSaltos(predio.propietarios) + '</td>');
                 var td_4 = $('<td class="cell_center"></td>');
 
                 var htmlBotones = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Editar predio" ide="' + predio.id + '" class="modify_row btn btn-instagram" req_res="' + opcion.resolucion_edita + '" ' + disabledBtnEdita + '><i class="fa fa-pencil-square"></i></button>' +
@@ -1879,13 +1885,13 @@ function getPredio(id_predio, showBlock, getData) {
                                 //   '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Prescribir predio" ide="' + predio.id + '" class="prescribe_row btn ' + classBtn + '" ' + disabledBtnPrescribe + '><i class="fa fa-clock-o"></i></button>' +
                                 //   '&nbsp;&nbsp;' +
                                   '<button id="btn_calculo_predio_' + predio.id + '" type="button" data-toggle="tooltip" data-placement="bottom" title="Generar factura" ide="' + predio.id + '" class="download_factura_row btn btn-'+ colorBtnCalculo +'" url="/generate_factura_pdf/' + predio.id + '" msg="¿Está seguro/a que desea ejecutar el cálculo?" ' + disabledBtnCalculo + '><i id="i_calculo_predio_' + predio.id + '" class="fa ' + classBtnCalculo + '"></i></button>' + '&nbsp;&nbsp;' +
-                                  '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Generar paz y salvo" ide="' + predio.id + '" class="download_paz_row btn btn-warning" url="/generate_paz_pdf/' + predio.id + '" plusv="' + predio.ind_plusvalia + '" msg="¿Está seguro/a que desea generar el paz y salvo?" ' + disabledBtnPaz + '><i class="fa fa-trophy"></i></button>' +
+                                  '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Generar paz y salvo" ide="' + predio.id + '" class="download_paz_row btn btn-warning" url="/generate_paz_pdf/' + predio.id + '" plusv="' + predio.ind_plusvalia + '" msg="¿Está seguro/a que desea generar el paz y salvo?" ' + disabledBtnPaz + '><i class="fa fa-file-text-o"></i></button>' +
                                   '&nbsp;&nbsp;' +
                                 //   '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Ver aval&uacute;os" ide="' + predio.id + '" class="avaluos_row btn btn-default"><i class="fa fa-home"></i></button>' +
                                 //   '&nbsp;&nbsp;' +
-                                  (globalShowBtnAcuerdos && !global_ya_pagado && (anios.length > 0 || global_acuerdo_pago) ? ('<button type="button" data-toggle="tooltip" data-placement="bottom" title="Acuerdo de pago" ide="' + predio.id + '" class="acuerdos_row btn btn-default"><i class="fa fa-child"></i></button>' +
+                                  (globalShowBtnAcuerdos && !global_ya_pagado && (anios.length > 0 || global_acuerdo_pago) ? ('<button type="button" data-toggle="tooltip" data-placement="bottom" title="Acuerdo de pago" ide="' + predio.id + '" class="acuerdos_row btn btn-default"><i class="fa fa-calendar"></i></button>' +
                                   '&nbsp;&nbsp;') : '' ) +
-                                  '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Eliminar predio" ide="' + predio.id + '" class="delete_row btn btn-danger" req_res="' + opcion.resolucion_elimina + '" msg="¿Está seguro/a que desea anular el predio?" ' + disabledBtnElimina + '><i class="fa fa-trash-o"></i></button>';
+                                  '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Anular predio" ide="' + predio.id + '" class="delete_row btn btn-danger" req_res="' + opcion.resolucion_elimina + '" msg="¿Está seguro/a que desea anular el predio?" ' + disabledBtnElimina + '><i class="fa fa-trash-o"></i></button>';
 
                 td_4.html(htmlBotones);
                 tr.append(td_1).append(td_2).append(td_3).append(td_4);
@@ -1900,9 +1906,9 @@ function getPredio(id_predio, showBlock, getData) {
                 $('#anio_final_acuerdo').append('<option value="">Seleccione</option>');
                 $.each(global_propietarios, function(i, el) {
                     if (el.jerarquia === '001') {
-                        $('#propietario_facturar').append('<option selected value="' + el.id + '">' + el.jerarquia + ' - ' + el.nombre + '</option>');
+                        $('#propietario_facturar').append('<option selected value="' + el.id + '">' + escHtml(el.jerarquia) + ' - ' + escHtml(el.nombre) + '</option>');
                     } else {
-                        $('#propietario_facturar').append('<option value="' + el.id + '">' + el.jerarquia + ' - ' + el.nombre + '</option>');
+                        $('#propietario_facturar').append('<option value="' + el.id + '">' + escHtml(el.jerarquia) + ' - ' + escHtml(el.nombre) + '</option>');
                     }
                 });
 
@@ -2455,7 +2461,7 @@ function formatRepo (repo) {
 
     $container.find(".select2-result-repository__title").text(repo.text);
     $container.find(".select2-result-repository__description").text(repo.codigo_predio);
-    $container.find(".select2-result-repository__forks").append(repo.propietarios);
+    $container.find(".select2-result-repository__forks").append(escHtmlConSaltos(repo.propietarios));
 
     //$container.find(".select2-result-repository__title").text(repo.full_name);
     // $container.find(".select2-result-repository__description").text(repo.description);
@@ -2972,7 +2978,7 @@ function saveAniosFactura(uncheckedAnios) {
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Si",
+        confirmButtonText: "Sí",
         cancelButtonText: "No",
         closeOnConfirm: true,
         closeOnCancel: true
